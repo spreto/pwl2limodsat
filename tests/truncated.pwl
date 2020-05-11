@@ -1,0 +1,31 @@
+c
+c Hand generated.
+c spreto 05/09/2020
+c Tests for Truncated Linear Functions
+c
+c The first uncommented tl line is read by pwl2limodsat
+c
+
+c tl 0 1
+
+c tl 1 1
+
+c tl 2 1
+
+c tl 3 1
+
+c tl 3 3
+
+c tl 4 4
+
+c tl 0 1 1 1
+
+c tl 0 1 1 2
+
+c tl 3 5 0 5 -7 3
+
+c tl 4 9 0 1 2 3
+
+c tl 5 6 0 1 -1 2
+
+tl 4 3 -1 1 0 1

@@ -8,7 +8,7 @@ PiecewiseLinearFunction::PiecewiseLinearFunction(const vector<vector<LinearPiece
     var(VariableManager(coefss.at(0).size()-1))
 {
     for ( auto i = 0; i < coefss.size(); i++ )
-        pieces.push_back(RegionalLinearPiece(coefss.at(i), boundss.at(i), &var));
+        pieces.push_back(RegionalLinearPiece(coefss.at(i), boundss.at(i), &boundaryPrototypes, &var));
 
     if ( inputFileName.substr(inputFileName.size()-4,4) == ".pwl" )
         outputFileName = inputFileName.substr(0,inputFileName.size()-4);

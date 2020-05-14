@@ -25,11 +25,11 @@ class LinearPiece
         void printRepresentation();
 
     protected:
+        vector<LinearPieceCoefficient> pieceCoefficients;
+        unsigned dim;
 
     private:
         string outputFileName;
-        vector<LinearPieceCoefficient> pieceCoefficients;
-        unsigned dim;
         VariableManager *var;
         bool ownVariableManager = false;
         ModSat representationModSat;

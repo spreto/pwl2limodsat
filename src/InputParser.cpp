@@ -128,9 +128,9 @@ PiecewiseLinearFunction InputParser::createPWLInstance()
                 if ( (boundaryNumber > 0) && (boundaryNumber <= boundaryCounter) )
                 {
                     if ( currentLine.compare(0,2,"g ") == 0 )
-                        bounds.push_back(pair<unsigned,BoundarySymbol>(boundaryNumber, GeqZero));
+                        bounds.push_back(pair<unsigned,BoundarySymbol>(boundaryNumber-1, GeqZero));
                     else if ( currentLine.compare(0,2,"l ") == 0 )
-                        bounds.push_back(pair<unsigned,BoundarySymbol>(boundaryNumber, LeqZero));
+                        bounds.push_back(pair<unsigned,BoundarySymbol>(boundaryNumber-1, LeqZero));
                 }
                 else
                     throw out_of_range("Nonexistent boundary prototype.");

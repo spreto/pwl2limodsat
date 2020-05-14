@@ -23,8 +23,14 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-std=c++0x" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Linker>
+			<Add library="/usr/local/lib/libsoplex-5.0.0.linux.x86_64.gnu.opt.a" />
+			<Add library="/usr/lib/x86_64-linux-gnu/libgmp.a" />
+			<Add library="/usr/lib/x86_64-linux-gnu/libz.a" />
+		</Linker>
 		<Unit filename="include/Formula.h" />
 		<Unit filename="include/InputParser.h" />
 		<Unit filename="include/LinearPiece.h" />

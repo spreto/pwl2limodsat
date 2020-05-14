@@ -1,6 +1,8 @@
 #include "RegionalLinearPiece.h"
-#include <iostream>
+
 #include "soplex.h"
+
+#define PREC 1000000
 
 using namespace soplex;
 
@@ -10,14 +12,14 @@ RegionalLinearPiece::RegionalLinearPiece(const vector<LinearPieceCoefficient>& c
     boundaries(bounds),
     boundaryPrototypes(boundProts) {}
 
-// Sets float to 5 decimal places. Used in function isAbove.
+// Sets float to log10(PREC) decimal places. Used in function isAbove.
 // Maybe it is uncecessary if SoPlex is used as exact solver.
 float RegionalLinearPiece::precision(float num)
 {
-    num *= 100000;
+    num *= PREC;
     num += 0.5;
     long auxNum = (long) num;
-    num = (float) auxNum / 100000;
+    num = (float) auxNum / PREC;
 
     return num;
 }

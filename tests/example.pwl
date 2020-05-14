@@ -1,6 +1,6 @@
 c
 c Hand generated.
-c spreto 05/11/2020
+c spreto 05/14/2020
 c Piecewise Linear Function pwl file example
 c
 
@@ -8,22 +8,36 @@ pwl
 
 c
 c Boundary Prototypes
+c o_0 + o_1 x_1 + o_2 x_2
 c
 
 b 8 -9 -6
 b 1 -2 1
-b 0.33333 0 -1
+b 0.333333 0 -1
 b 0 1 0
 b 1 -1 0
 b 0 0 1
 b 1 0 -1
 
 c
-c First linear piece with boundaries
+c First linear piece
+c a_0/b_0 + a_1/b_1 x_1 + a_2/b_2 x_2
 c
 
 p 4 9 0 1 2 3
+
+c
+c Boundary of first linear piece region
+c Uses first boundary prototype
+c o_0 + o_1 x_1 + o_2 x_2 >= 0
+c 
+
 g 1
+
+c
+c Other boundaries of first linear piece region
+c
+
 g 3
 g 4
 g 6

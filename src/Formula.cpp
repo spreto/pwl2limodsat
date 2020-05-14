@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "Formula.h"
 
 Formula::Formula() {}
@@ -21,9 +23,7 @@ Formula::Formula(const Formula& form, LogicalSymbol unSym) :
     if ( unSym == Neg )
         this->negateFormula();
     else
-    {
-        // exception: not unary operation
-    }
+        throw invalid_argument("Not a valid logic operation.");
 }
 
 Formula::Formula(const Formula& form1, const Formula& form2, LogicalSymbol binSym) :
@@ -40,9 +40,7 @@ Formula::Formula(const Formula& form1, const Formula& form2, LogicalSymbol binSy
     else if ( binSym == Min )
         this->addMinimum(form2);
     else
-    {
-        // exception: not binary operation
-    }
+        throw invalid_argument("Not a valid logic operation.");
 }
 
 void Formula::negateFormula()
@@ -98,7 +96,7 @@ void Formula::addBinaryOperation(const Formula& form, LogicalSymbol binSym)
     else if ( binSym == Min )
         binOp = &minimums;
     else
-        binOp = nullptr; // fix this... exception: not a binary operation
+        throw invalid_argument("Not a valid logic operation.");
 
     addUnits(form);
 
@@ -141,49 +139,6 @@ void Formula::addMinimum(const Formula& form)
 {
     addBinaryOperation(form,Min);
 }
-
-/*
-void Formula::print(ofstream *output)
-{
-    for (auto i = 0; i < unitClauses.size(); i++)
-    {
-        *output << "Unit " << unitClauses.at(i).first << " :: Clause      :: ";
-        for ( int j = 0; j < unitClauses.at(i).second.size(); j++ )
-            *output << unitClauses.at(i).second.at(j) << " ";
-        *output << endl;
-    }
-
-    for ( auto i = 0; i < negations.size(); i++ )
-    {
-        *output << "Unit " << negations.at(i).first << " :: Negation    :: ";
-        *output << negations.at(i).second << endl;
-    }
-
-    for ( auto i = 0; i < equivalences.size(); i++ )
-    {
-        *output << "Unit " << get<0>(equivalences.at(i)) << " :: Equivalence :: ";
-        *output << get<1>(equivalences.at(i)) << " " << get<2>(equivalences.at(i)) << endl;
-    }
-
-    for ( auto i = 0; i < implications.size(); i++ )
-    {
-        *output << "Unit " << get<0>(implications.at(i)) << " :: Implication :: ";
-        *output << get<1>(implications.at(i)) << " " << get<2>(implications.at(i)) << endl;
-    }
-
-    for ( auto i = 0; i < maximums.size(); i++ )
-    {
-        *output << "Unit " << get<0>(maximums.at(i)) << " :: Maximum     :: ";
-        *output << get<1>(maximums.at(i)) << " " << get<2>(maximums.at(i)) << endl;
-    }
-
-    for ( auto i = 0; i < minimums.size(); i++ )
-    {
-        *output << "Unit " << get<0>(minimums.at(i)) << " :: Minimum     :: ";
-        *output << get<1>(minimums.at(i)) << " " << get<2>(minimums.at(i)) << endl;
-    }
-}
-*/
 
 void Formula::print(ofstream *output)
 {

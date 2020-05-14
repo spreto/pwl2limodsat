@@ -11,7 +11,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="/home/spreto/pwl2limodsat/tests/example.pwl" />
+				<Option parameters="/home/spreto/pwl2limodsat/tests/example2.pwl" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="include" />

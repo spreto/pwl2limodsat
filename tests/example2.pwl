@@ -1,0 +1,32 @@
+c
+c Hand generated.
+c spreto 05/14/2020
+c Piecewise Linear Function pwl file example
+c
+
+pwl
+
+b 0 1 0
+b 0.25 -1 0
+b 0 0 1
+b 1 0 -1
+b 0.5 -1 0
+b 1 -1 0
+
+p 1 1 -2 1 0 1
+g 1
+g 2
+g 3
+g 4
+
+p 1 2 0 1 0 1
+l 2
+g 5
+g 3
+g 4
+
+p 3 4 -1 2 0 1
+l 5
+g 6
+g 3
+g 4

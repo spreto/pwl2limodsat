@@ -139,107 +139,109 @@ void LinearPiece::representModSat()
         zeroRepresentation.phi = zeroFormula();
         representationModSat = zeroRepresentation;
     }
-
-    enum Sign { P, N };
-
-    vector<unsigned> alphas, betas;
-    vector<unsigned> indexes[2];
-
-    for ( auto i = 0; i <= dim; i++ )
+    else
     {
-        if ( pieceCoefficients[i].first >= 0 )
+        enum Sign { P, N };
+
+        vector<unsigned> alphas, betas;
+        vector<unsigned> indexes[2];
+
+        for ( auto i = 0; i <= dim; i++ )
         {
-            alphas.push_back(pieceCoefficients[i].first);
-            indexes[P].push_back(i);
-        }
-        else
-        {
-            alphas.push_back(-pieceCoefficients[i].first);
-            indexes[N].push_back(i);
-        }
-    }
-
-    unsigned beta = ceil(abs((double) pieceCoefficients[0].first / (double) pieceCoefficients[0].second));
-    for ( auto i = 1; i <= dim; i++ )
-        if ( beta < ceil(abs((double) pieceCoefficients[i].first / (double) pieceCoefficients[i].second)) )
-            beta = ceil(abs((double) pieceCoefficients[i].first / (double) pieceCoefficients[i].second));
-
-    for ( auto i = 0; i <= dim; i++ )
-        betas.push_back(pieceCoefficients[i].second * beta);
-
-    ModSat representation[2];
-    ModSatSet msSetAux;
-    ModSat msAux;
-
-    for ( Sign J : { P, N } )
-    {
-        bool emptyIndexes = true;
-
-        for ( auto j = 0; j < indexes[J].size(); j++ )
-            if ( alphas.at(indexes[J].at(j)) != 0 )
-                emptyIndexes = false;
-
-        if ( ( indexes[J].empty() ) || ( emptyIndexes ) )
-            representation[J].phi = zeroFormula();
-        else
-        {
-            if ( ( indexes[J].at(0) == 0 ) && ( alphas.at(indexes[J].at(0)) != 0 ) )
+            if ( pieceCoefficients[i].first >= 0 )
             {
-                if ( !var->isThereConstant(betas.at(0)) )
-                {
-                    msSetAux = defineConstant(betas.at(0));
-                    representation[J].Phi.insert(representation[J].Phi.end(), msSetAux.begin(), msSetAux.end());
-                }
-                msAux = multiplyConstant(alphas.at(0),betas.at(0));
-                representation[J].phi.addLukaDisjunction(msAux.phi);
-                representation[J].Phi.insert(representation[J].Phi.end(), msAux.Phi.begin(), msAux.Phi.end());
+                alphas.push_back(pieceCoefficients[i].first);
+                indexes[P].push_back(i);
             }
-
-            for ( auto j = (indexes[J].at(0) == 0 ? 1 : 0); j < indexes[J].size(); j++ )
+            else
             {
+                alphas.push_back(-pieceCoefficients[i].first);
+                indexes[N].push_back(i);
+            }
+        }
+
+        unsigned beta = ceil(abs((double) pieceCoefficients[0].first / (double) pieceCoefficients[0].second));
+        for ( auto i = 1; i <= dim; i++ )
+            if ( beta < ceil(abs((double) pieceCoefficients[i].first / (double) pieceCoefficients[i].second)) )
+                beta = ceil(abs((double) pieceCoefficients[i].first / (double) pieceCoefficients[i].second));
+
+        for ( auto i = 0; i <= dim; i++ )
+            betas.push_back(pieceCoefficients[i].second * beta);
+
+        ModSat representation[2];
+        ModSatSet msSetAux;
+        ModSat msAux;
+
+        for ( Sign J : { P, N } )
+        {
+            bool zeroIndexes = true;
+
+            for ( auto j = 0; j < indexes[J].size(); j++ )
                 if ( alphas.at(indexes[J].at(j)) != 0 )
+                    zeroIndexes = false;
+
+            if ( ( indexes[J].empty() ) || ( zeroIndexes ) )
+                representation[J].phi = zeroFormula();
+            else
+            {
+                if ( ( indexes[J].at(0) == 0 ) && ( alphas.at(indexes[J].at(0)) != 0 ) )
                 {
-                    if ( !var->isThereConstant( betas.at(indexes[J].at(j)) ) )
+                    if ( !var->isThereConstant(betas.at(0)) )
                     {
-                        msSetAux = defineConstant(betas.at(indexes[J].at(j)));
+                        msSetAux = defineConstant(betas.at(0));
                         representation[J].Phi.insert(representation[J].Phi.end(), msSetAux.begin(), msSetAux.end());
                     }
-
-                    unsigned Max = fmax(alphas.at(indexes[J].at(j)), betas.at(indexes[J].at(j)));
-                    unsigned Min = fmin(alphas.at(indexes[J].at(j)), betas.at(indexes[J].at(j)));
-
-                    Variable auxVar = var->newVariable();
-                    msAux = binaryModSat(Max, auxVar);
+                    msAux = multiplyConstant(alphas.at(0),betas.at(0));
+                    representation[J].phi.addLukaDisjunction(msAux.phi);
                     representation[J].Phi.insert(representation[J].Phi.end(), msAux.Phi.begin(), msAux.Phi.end());
+                }
 
-                    if ( alphas.at(indexes[J].at(j)) == betas.at(indexes[J].at(j)) )
+                for ( auto j = (indexes[J].at(0) == 0 ? 1 : 0); j < indexes[J].size(); j++ )
+                {
+                    if ( alphas.at(indexes[J].at(j)) != 0 )
                     {
-                        representation[J].phi.addLukaDisjunction(msAux.phi);
-                        representation[J].Phi.push_back(Formula(msAux.phi, Formula(indexes[J].at(j)), Equiv));
-                    }
-                    else if ( alphas.at(indexes[J].at(j)) < betas.at(indexes[J].at(j)) )
-                    {
-                        representation[J].phi.addLukaDisjunction(variableSecondMultiplication(Min,auxVar));
-                        representation[J].Phi.push_back(Formula(msAux.phi, Formula(indexes[J].at(j)), Equiv));
-                    }
-                    else
-                    {
-                        representation[J].phi.addLukaDisjunction(msAux.phi);
-                        representation[J].Phi.push_back(Formula(variableSecondMultiplication(Min,auxVar), Formula(indexes[J].at(j)), Equiv));
-                    }
+                        if ( !var->isThereConstant( betas.at(indexes[J].at(j)) ) )
+                        {
+                            msSetAux = defineConstant(betas.at(indexes[J].at(j)));
+                            representation[J].Phi.insert(representation[J].Phi.end(), msSetAux.begin(), msSetAux.end());
+                        }
 
-                    representation[J].Phi.push_back(Formula(Formula(auxVar), Formula(var->constant(betas.at(indexes[J].at(j)))), Impl));
+                        unsigned Max = fmax(alphas.at(indexes[J].at(j)), betas.at(indexes[J].at(j)));
+                        unsigned Min = fmin(alphas.at(indexes[J].at(j)), betas.at(indexes[J].at(j)));
+
+                        Variable auxVar = var->newVariable();
+                        msAux = binaryModSat(Max, auxVar);
+                        representation[J].Phi.insert(representation[J].Phi.end(), msAux.Phi.begin(), msAux.Phi.end());
+
+                        if ( alphas.at(indexes[J].at(j)) == betas.at(indexes[J].at(j)) )
+                        {
+                            representation[J].phi.addLukaDisjunction(msAux.phi);
+                            representation[J].Phi.push_back(Formula(msAux.phi, Formula(indexes[J].at(j)), Equiv));
+                        }
+                        else if ( alphas.at(indexes[J].at(j)) < betas.at(indexes[J].at(j)) )
+                        {
+                            representation[J].phi.addLukaDisjunction(variableSecondMultiplication(Min,auxVar));
+                            representation[J].Phi.push_back(Formula(msAux.phi, Formula(indexes[J].at(j)), Equiv));
+                        }
+                        else
+                        {
+                            representation[J].phi.addLukaDisjunction(msAux.phi);
+                            representation[J].Phi.push_back(Formula(variableSecondMultiplication(Min,auxVar), Formula(indexes[J].at(j)), Equiv));
+                        }
+
+                        representation[J].Phi.push_back(Formula(Formula(auxVar), Formula(var->constant(betas.at(indexes[J].at(j)))), Impl));
+                    }
                 }
             }
         }
+
+        msAux = binaryModSat(beta, Formula(Formula(representation[P].phi, representation[N].phi, Impl), Neg));
+
+        representationModSat.phi = msAux.phi;
+        representationModSat.Phi = representation[P].Phi;
+        representationModSat.Phi.insert(representationModSat.Phi.end(), representation[N].Phi.begin(), representation[N].Phi.end());
+        representationModSat.Phi.insert(representationModSat.Phi.end(), msAux.Phi.begin(), msAux.Phi.end());
     }
-
-    msAux = binaryModSat(beta, Formula(Formula(representation[P].phi, representation[N].phi, Impl), Neg));
-
-    representationModSat.phi = msAux.phi;
-    representationModSat.Phi = representation[P].Phi;
-    representationModSat.Phi.insert(representationModSat.Phi.end(), representation[N].Phi.begin(), representation[N].Phi.end());
-    representationModSat.Phi.insert(representationModSat.Phi.end(), msAux.Phi.begin(), msAux.Phi.end());
 }
 
 ModSat LinearPiece::getRepresentationModSat()

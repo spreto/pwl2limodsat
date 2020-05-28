@@ -144,6 +144,7 @@ void LinearPiece::representModSat()
         enum Sign { P, N };
 
         vector<unsigned> alphas, betas;
+        double betaPositive = 0, betaNegative = 0;
         vector<unsigned> indexes[2];
 
         for ( auto i = 0; i <= dim; i++ )
@@ -151,19 +152,18 @@ void LinearPiece::representModSat()
             if ( pieceCoefficients[i].first >= 0 )
             {
                 alphas.push_back(pieceCoefficients[i].first);
+                betaPositive += (double) pieceCoefficients[i].first / (double) pieceCoefficients[i].second;
                 indexes[P].push_back(i);
             }
             else
             {
                 alphas.push_back(-pieceCoefficients[i].first);
+                betaNegative += -((double) pieceCoefficients[i].first / (double) pieceCoefficients[i].second);
                 indexes[N].push_back(i);
             }
         }
 
-        unsigned beta = ceil(abs((double) pieceCoefficients[0].first / (double) pieceCoefficients[0].second));
-        for ( auto i = 1; i <= dim; i++ )
-            if ( beta < ceil(abs((double) pieceCoefficients[i].first / (double) pieceCoefficients[i].second)) )
-                beta = ceil(abs((double) pieceCoefficients[i].first / (double) pieceCoefficients[i].second));
+        unsigned beta = ceil(fmax(betaPositive, betaNegative));
 
         for ( auto i = 0; i <= dim; i++ )
             betas.push_back(pieceCoefficients[i].second * beta);

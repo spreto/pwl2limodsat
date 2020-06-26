@@ -55,21 +55,12 @@ bool RegionalLinearPiece::isAbove(const RegionalLinearPiece& comparedRLP)
     }
 
     sop.setIntParam(SoPlex::VERBOSITY, SoPlex::VERBOSITY_ERROR);
-    sop.setIntParam(SoPlex::OBJSENSE, SoPlex::OBJSENSE_MINIMIZE);
+    sop.setIntParam(SoPlex::OBJSENSE, SoPlex::OBJSENSE_MAXIMIZE);
     sop.optimize();
-    float Min = precision(sop.objValueReal());
+    float Max = precision(sop.objValueReal());
 
-    if ( Min >= K )
-        return false;
+    if ( K >= Max )
+        return true;
     else
-    {
-        sop.setIntParam(SoPlex::OBJSENSE, SoPlex::OBJSENSE_MAXIMIZE);
-        sop.optimize();
-        float Max = precision(sop.objValueReal());
-
-        if ( Max <= K )
-            return true;
-        else
-            return false;
-    }
+        return false;
 }

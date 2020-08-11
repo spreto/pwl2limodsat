@@ -2,7 +2,7 @@
 
 #include "soplex.h"
 
-#define PREC 1000000
+#define PREC 100000
 
 using namespace soplex;
 
@@ -12,18 +12,6 @@ RegionalLinearPiece::RegionalLinearPiece(const vector<LinearPieceCoefficient>& c
     boundaries(bounds),
     boundaryPrototypes(boundProts) {}
 
-// Sets float to log10(PREC) decimal places. Used in function isAbove.
-// Maybe it is uncecessary if SoPlex is used as exact solver.
-float RegionalLinearPiece::precision(float num)
-{
-    num *= PREC;
-    num += 0.5;
-    long auxNum = (long) num;
-    num = (float) auxNum / PREC;
-
-    return num;
-}
-
 bool RegionalLinearPiece::isAbove(const RegionalLinearPiece& comparedRLP)
 {
     vector<float> objFunc;
@@ -32,7 +20,7 @@ bool RegionalLinearPiece::isAbove(const RegionalLinearPiece& comparedRLP)
         objFunc.push_back(((float) pieceCoefficients.at(i).first/(float) pieceCoefficients.at(i).second)-
                           ((float) comparedRLP.getPieceCoefficients().at(i).first/(float) comparedRLP.getPieceCoefficients().at(i).second));
 
-    float K = precision(-objFunc.at(0));
+    float K = -objFunc.at(0);
 
     SoPlex sop;
 
@@ -57,9 +45,9 @@ bool RegionalLinearPiece::isAbove(const RegionalLinearPiece& comparedRLP)
     sop.setIntParam(SoPlex::VERBOSITY, SoPlex::VERBOSITY_ERROR);
     sop.setIntParam(SoPlex::OBJSENSE, SoPlex::OBJSENSE_MAXIMIZE);
     sop.optimize();
-    float Max = precision(sop.objValueReal());
+    float Max = sop.objValueReal();
 
-    if ( K >= Max )
+    if ( ( K > Max ) || ( abs(K-Max) < (float) 1/PREC ) )
         return true;
     else
         return false;

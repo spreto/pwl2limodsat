@@ -7,6 +7,7 @@ import math
 import fractions
 import random
 import threading
+import copy
 
 #   settings   ########################################################################################################
 #######################################################################################################################
@@ -37,12 +38,8 @@ pwl_test = []
 # 0: random truncated linear
 # 1: normalized random linear
 # 2: simple region piecewise linear
-TEST_TYPE = 2
-
-# Used for types 0 and 1
-# MAXDIMENSIONSTHREADING = 5
-
-# Used for type 2
+# 3: cubic region piecewise linear
+TEST_TYPE = 3
 MAXDIMENSIONSTHREADING = 1
 
 NUMEVALUATIONS = 100
@@ -55,10 +52,16 @@ DECPRECISION_form = ".6f"
 # MAXINTEGER = 100
 
 # Used for type 2
-MAXDIMENSION = 50
-NUMTESTSBYCONFIG = 10
-MAXINTEGER = 100
-MAXREGIONALPARAM = 100
+# MAXDIMENSION = 50
+# NUMTESTSBYCONFIG = 1
+# MAXINTEGER = 100
+# MAXREGIONALPARAM = 20
+
+# Used for type 3
+MAXDIMENSION = 10
+NUMTESTSBYCONFIG = 1
+MAXINTEGER = 30
+MAXREGIONALPARAM = 11
 
 #   create tl instance   ##############################################################################################
 #######################################################################################################################
@@ -556,7 +559,7 @@ def generatePwl_simp(instance_dimension, regional_parameter):
         maximum += (coefficients[2]*((r+1)/regional_parameter)) / coefficients[3]
         maximum += coefficients[0]/coefficients[1]
 
-        rand = round(random.uniform(-maximum*regional_parameter, (1-minimum)*regional_parameter),int(math.log10(MAXINTEGER))+1)
+        rand = round(random.uniform(-minimum*regional_parameter, (1-maximum)*regional_parameter),int(math.log10(MAXINTEGER))+1)
         q = fractions.Fraction.from_float(rand).limit_denominator(10**int((math.log10(MAXINTEGER)+1)))
 
         aux = fractions.Fraction(coefficients[0],coefficients[1]) + q*fractions.Fraction(-r,regional_parameter)
@@ -576,6 +579,196 @@ def generatePwl_simp(instance_dimension, regional_parameter):
             bound.append(['g', b])
             bound.append(['l', b+1])
         boundary.append(bound)
+
+    instance_data = []
+    instance_data.append(function)
+    instance_data.append(boundary_prot)
+    instance_data.append(boundary)
+
+    return instance_data
+
+#   generate cubic region piecewise linear function   #################################################################
+#######################################################################################################################
+
+def generatePwl_cub(instance_dimension, regional_parameter):
+    coefficients = []
+
+    for c in range(instance_dimension+1):
+        coefficients.append(random.randint(-MAXINTEGER,MAXINTEGER))
+        coefficients.append(random.randint(1,MAXINTEGER))
+
+    minimum = 0
+    for c in range(2,2*(instance_dimension+1),2):
+        if coefficients[c] < 0:
+            minimum += (coefficients[c]*(1/regional_parameter)) / coefficients[c+1]
+    minimum += coefficients[0]/coefficients[1]
+
+    if minimum < 0:
+        num = 1
+        while num/coefficients[1] < abs(minimum):
+            num += 1
+        coefficients[0] += num
+
+    maximum = 0
+    for c in range(2,2*(instance_dimension+1),2):
+        if coefficients[c] > 0:
+            maximum += (coefficients[c]*(1/regional_parameter)) / coefficients[c+1]
+    maximum += coefficients[0]/coefficients[1]
+
+    if maximum > 1:
+        for c in range(0,2*(instance_dimension+1),2):
+            coefficients[c+1] *= math.ceil(maximum)
+
+    boundary_prot = []
+
+    for b0 in range(1,instance_dimension+1):
+        for b in range(regional_parameter+1):
+            bound = [0]*(instance_dimension+1)
+            bound[0] = -b*(1/regional_parameter)
+            bound[b0] = 1
+            boundary_prot.append(bound)
+
+    function = []
+    function.append(coefficients)
+
+    boundary = []
+    bound = []
+    for b in range(0, len(boundary_prot), regional_parameter+1):
+        bound.append(['g', b])
+        bound.append(['l', b+1])
+    boundary.append(bound)
+
+    fIndex = []
+    fIndex.append([0]*instance_dimension)
+
+    f = [0]*instance_dimension
+    f[0] = 1
+    allDefined = 0
+
+    if regional_parameter == 1:
+        allDefined = 1
+
+    globalMinimum = 0
+    globalMaximum = 1
+
+    while not allDefined:
+        i = 0
+        while f[i] == 0:
+            i = i+1
+        fAIndex = copy.deepcopy(f)
+        fAIndex[i] = fAIndex[i] - 1
+        r = i
+
+        for j in range(len(fIndex)):
+            if fIndex[j] == fAIndex:
+                fA = j
+
+        coefficients = []
+        for c in range(2*(instance_dimension+1)):
+            coefficients.append(function[fA][c])
+
+        i = i+1
+        while i < instance_dimension and f[i] == 0:
+            i = i+1
+
+        if i < instance_dimension:
+            fBIndex = copy.deepcopy(f)
+            fBIndex[i] = fBIndex[i] - 1
+
+            fB = 0
+            for j in range(len(fIndex)):
+                if fIndex[j] == fBIndex:
+                    fB = j
+
+            qAux = (function[fB][2*r+2] / function[fB][2*r+3]) - (function[fA][2*r+2] / function[fA][2*r+3])
+            q = fractions.Fraction.from_float(qAux).limit_denominator(10**int((math.log10(MAXINTEGER)+1)))
+
+            aux = fractions.Fraction(coefficients[0],coefficients[1]) + q*fractions.Fraction(-f[r],regional_parameter)
+            coefficients[0] = aux.numerator
+            coefficients[1] = aux.denominator
+
+            aux = fractions.Fraction(coefficients[2*r+2],coefficients[2*r+3]) + q
+            coefficients[2*r+2] = aux.numerator
+            coefficients[2*r+3] = aux.denominator
+        else:
+            minimum = coefficients[0]/coefficients[1]
+            for c in range(2,2*(instance_dimension+1),2):
+                if coefficients[c] < 0:
+                    minimum += ( coefficients[c]*((f[int(c/2)-1]+1)/regional_parameter) ) / coefficients[c+1]
+                else:
+                    minimum += ( coefficients[c]*((f[int(c/2)-1])/regional_parameter) ) / coefficients[c+1]
+
+            maximum = coefficients[0]/coefficients[1]
+            for c in range(2,2*(instance_dimension+1),2):
+                if coefficients[c] > 0:
+                    maximum += ( coefficients[c]*((f[int(c/2)-1]+1)/regional_parameter) ) / coefficients[c+1]
+                else:
+                    maximum += ( coefficients[c]*((f[int(c/2)-1])/regional_parameter) ) / coefficients[c+1]
+
+            rand = round(random.uniform(-minimum*regional_parameter, (1-maximum)*regional_parameter),int(math.log10(MAXINTEGER))+1)
+            q = fractions.Fraction.from_float(rand).limit_denominator(10**int((math.log10(MAXINTEGER)+1)))
+
+            aux = fractions.Fraction(coefficients[0],coefficients[1]) + q*fractions.Fraction(-f[r],regional_parameter)
+            coefficients[0] = aux.numerator
+            coefficients[1] = aux.denominator
+
+            aux = fractions.Fraction(coefficients[2*r+2],coefficients[2*r+3]) + q
+            coefficients[2*r+2] = aux.numerator
+            coefficients[2*r+3] = aux.denominator
+
+        function.append(coefficients)
+
+        minimum = coefficients[0]/coefficients[1]
+        for c in range(2,2*(instance_dimension+1),2):
+            if coefficients[c] < 0:
+                minimum += ( coefficients[c]*((f[int(c/2)-1]+1)/regional_parameter) ) / coefficients[c+1]
+            else:
+                minimum += ( coefficients[c]*((f[int(c/2)-1])/regional_parameter) ) / coefficients[c+1]
+
+        if minimum < globalMinimum:
+            globalMinimum = minimum
+
+        maximum = coefficients[0]/coefficients[1]
+        for c in range(2,2*(instance_dimension+1),2):
+            if coefficients[c] > 0:
+                maximum += ( coefficients[c]*((f[int(c/2)-1]+1)/regional_parameter) ) / coefficients[c+1]
+            else:
+                maximum += ( coefficients[c]*((f[int(c/2)-1])/regional_parameter) ) / coefficients[c+1]
+
+        if maximum > globalMaximum:
+            globalMaximum = maximum
+
+        bound = []
+        for b in range(instance_dimension):
+            bound.append(['g', b*(regional_parameter+1)+f[b]])
+            bound.append(['l', b*(regional_parameter+1)+f[b]+1])
+        boundary.append(bound)
+
+        fIndex.append(copy.deepcopy(f))
+
+        if f == [regional_parameter-1]*instance_dimension:
+            allDefined = 1
+        else:
+            i = 0
+            while f[i] == regional_parameter-1:
+                f[i] = 0
+                i = i+1
+            f[i] = f[i] + 1
+
+    if globalMinimum < 0:
+        minAux = fractions.Fraction.from_float(abs(globalMinimum)).limit_denominator(10**int((math.log10(MAXINTEGER)+1)))
+        for func in function:
+            aux = fractions.Fraction(func[0], func[1]) + minAux
+            func[0] = aux.numerator
+            func[1] = aux.denominator
+
+    if globalMaximum+abs(globalMinimum) > 1:
+        maxAux = 1
+        while maxAux < globalMaximum+abs(globalMinimum):
+            maxAux = maxAux + 1
+        for func in function:
+            for c in range(1,2*(instance_dimension+1)+1,2):
+                func[c] = func[c]*maxAux
 
     instance_data = []
     instance_data.append(function)
@@ -643,9 +836,43 @@ def testRunnerPwl(genType, testName):
     for dim in range(1,MAXDIMENSION+1):
         for param in range(1,MAXREGIONALPARAM+1):
             for test_num in range(NUMTESTSBYCONFIG):
-                print("Dimension: "+str(dim)+" | Num. of regions: "+str(param)+" | Test num. "+str(test_num+1)+"\n")
+                print("Dimension: "+str(dim)+" | Regional parameter: "+str(param)+" | Test num. "+str(test_num+1)+"\n")
                 thr_test.append(threading.Thread(target=testPwl, args=(genType(dim,param), testName+"_"+str(dim)+"_"+str(param)+"_"+str(test_num+1), dim)))
                 thr_test[-1].start()
+
+        if dim % MAXDIMENSIONSTHREADING == 0 or dim == MAXDIMENSION:
+            finished = False
+            finished_thr_test = [False]*len(thr_test)
+
+            while not finished:
+                for th in range(len(thr_test)):
+                    if not thr_test[th].isAlive():
+                        finished_thr_test[th] = True
+
+                finished = True
+                for th in range(len(finished_thr_test)):
+                    if not finished_thr_test[th]:
+                        finished = False
+
+            thr_test = []
+
+#   runner 2 for piecewise linear tests   #############################################################################
+#######################################################################################################################
+
+def testRunnerPwl2(genType, testName):
+    thr_test = []
+
+    regions = MAXREGIONALPARAM
+
+    for dim in range(1,MAXDIMENSION+1):
+        for param in range(1,regions+1):
+            for test_num in range(NUMTESTSBYCONFIG):
+                print("Dimension: "+str(dim)+" | Regional parameter: "+str(param)+" | Test num. "+str(test_num+1)+"\n")
+                thr_test.append(threading.Thread(target=testPwl, args=(genType(dim,param), testName+"_"+str(dim)+"_"+str(param)+"_"+str(test_num+1), dim)))
+                thr_test[-1].start()
+
+        if regions > 1:
+            regions = regions - 1
 
         if dim % MAXDIMENSIONSTHREADING == 0 or dim == MAXDIMENSION:
             finished = False
@@ -695,6 +922,12 @@ elif TEST_TYPE == 2:
     os.system("mkdir "+data_folder)
     print("Simple region piecewise linear tests."+"\n\n")
     testRunnerPwl(generatePwl_simp, "pwl_simp")
+
+elif TEST_TYPE == 3:
+    data_folder = "./pwl_cub/"
+    os.system("mkdir "+data_folder)
+    print("Cubic region piecewise linear tests."+"\n\n")
+    testRunnerPwl2(generatePwl_cub, "pwl_cub")
 
 else:
     print("There is no such test."+"\n\n")

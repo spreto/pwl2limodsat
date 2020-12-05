@@ -13,7 +13,7 @@ import copy
 #######################################################################################################################
 
 data_folder = "./"
-yices = "./yices-smt2"
+yices = "yices-smt2"
 pwl2limodsat_path = "../../bin/Release/pwl2limodsat"
 
 # If tl_test is non empty, such function will be the only one tested

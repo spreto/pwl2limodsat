@@ -13,7 +13,7 @@ import copy
 #######################################################################################################################
 
 data_folder = "./"
-yices = "yices-smt2"
+yices = "./yices-smt2"
 pwl2limodsat_path = "../../bin/Release/pwl2limodsat"
 
 # If tl_test is non empty, such function will be the only one tested
@@ -58,10 +58,10 @@ DECPRECISION_form = ".6f"
 # MAXREGIONALPARAM = 20
 
 # Used for type 3
-MAXDIMENSION = 10
-NUMTESTSBYCONFIG = 1
+MAXDIMENSION = 9
+NUMTESTSBYCONFIG = 30
 MAXINTEGER = 30
-MAXREGIONALPARAM = 11
+MAXREGIONALPARAM = 7
 
 #   create tl instance   ##############################################################################################
 #######################################################################################################################
@@ -871,7 +871,7 @@ def testRunnerPwl2(genType, testName):
                 thr_test.append(threading.Thread(target=testPwl, args=(genType(dim,param), testName+"_"+str(dim)+"_"+str(param)+"_"+str(test_num+1), dim)))
                 thr_test[-1].start()
 
-        if regions > 1:
+        if regions > 2:
             regions = regions - 1
 
         if dim % MAXDIMENSIONSTHREADING == 0 or dim == MAXDIMENSION:

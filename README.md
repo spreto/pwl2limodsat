@@ -14,8 +14,8 @@ Finger, M. and Preto, S. 2020. Probably partially true: Satisfiability for Łuka
 
 ## Usage
 
-In the following command, **pwl2limodsat** take as input file *file*.pwl and produces output *file*.out:
+In the following command, **pwl2limodsat** takes as input file *file.pwl* and produces output *file.out*:
 
 > pwl2limodsat file.pwl
 
-A .pwl file may have two configurations: for truncated linear functions or for general rational McNaughton functions in regional format. Also, commented linear begin with *c*. Examples are found in folder *tests/*.
+A .pwl file may have two configurations: truncated linear functions and general rational McNaughton functions in regional format. Commented lineas begin with *c*. Examples are found in folder *tests/*.

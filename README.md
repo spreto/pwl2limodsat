@@ -18,4 +18,4 @@ In the following command, **pwl2limodsat** takes as input file *file.pwl* and pr
 
 > pwl2limodsat file.pwl
 
-A .pwl file may have two configurations: truncated linear functions and general rational McNaughton functions in regional format. Commented lineas begin with *c*. Examples are found in folder *tests/*.
+A .pwl file may have two configurations: truncated linear functions and general rational McNaughton functions in regional format. Commented lines begin with *c*. Examples are found in folder *tests/*.

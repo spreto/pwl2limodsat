@@ -15,7 +15,7 @@ INC =
 CFLAGS = -Wall -std=c++0x -fexceptions
 RESINC = 
 LIBDIR = 
-LIB = /usr/local/lib/libsoplex-5.0.0.linux.x86_64.gnu.opt.a /usr/lib/x86_64-linux-gnu/libgmp.a /usr/lib/x86_64-linux-gnu/libz.a
+LIB = -lgmp -lz -lsoplex
 LDFLAGS = 
 
 INC_RELEASE = $(INC) -Iinclude

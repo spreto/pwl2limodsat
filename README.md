@@ -12,10 +12,22 @@ and Semantic Frameworks, with Applications (LSFA 2020).
 Finger, M. and Preto, S. 2020. Probably partially true: Satisfiability for Łukasiewicz infinitely-valued probabilistic logic and related topics. *Journal of Automated Reasoning*, 64(7):1269–1286.
 [doi.org/10.1007/s10817-020-09558-9](https://doi.org/10.1007/s10817-020-09558-9)
 
+## Installation
+
+You must have in your computer the compilers **gcc** and **g++**, the **GMP** and **zlib** libraries and the **SoPlex** callable library [(soplex.zib.de)](https://soplex.zib.de/).
+
+To compile **pwl2limodsat**, all you have to do is type, at the root of the distribution directory:
+
+> $ make
+
+To remove all compiled files, just type:
+
+> $ make clean
+
 ## Usage
 
-In the following command, **pwl2limodsat** takes as input file *file.pwl* and produces output *file.out*:
+Typing the following command at the root of the distribution directory, **pwl2limodsat** takes as input file *file.pwl* and produces output *file.out*:
 
-> pwl2limodsat file.pwl
+> $ ./bin/Release/pwl2limodsat file.pwl
 
 A .pwl file may have two configurations: truncated linear functions and general rational McNaughton functions in regional format. Commented lines begin with *c*. Examples are found in folder *tests/*.

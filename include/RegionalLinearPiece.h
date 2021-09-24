@@ -12,8 +12,10 @@ typedef vector<BoundaryCoefficient> BoundaryPrototype;
 class RegionalLinearPiece : public LinearPiece
 {
     public:
-        RegionalLinearPiece(const vector<LinearPieceCoefficient>& coefs, const vector<Boundary>& bounds,
-                            const vector<BoundaryPrototype> *boundProts, VariableManager *varMan);
+        RegionalLinearPiece(const vector<LinearPieceCoefficient>& coefs,
+                            const vector<Boundary>& bounds,
+                            const vector<BoundaryPrototype> *boundProts,
+                            VariableManager *varMan);
 
         vector<LinearPieceCoefficient> getPieceCoefficients() const { return pieceCoefficients; }
 

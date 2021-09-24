@@ -9,10 +9,11 @@ typedef vector<BoundaryCoefficient> BoundaryPrototype;
 class PiecewiseLinearFunction
 {
     public:
-        PiecewiseLinearFunction(const vector<vector<LinearPieceCoefficient>>& coefss, const vector<vector<Boundary>>& boundss,
-                                const vector<BoundaryPrototype>& boundProts, string inputFileName);
-
-        void representLatticeFormula();
+        PiecewiseLinearFunction(const vector<vector<LinearPieceCoefficient>>& coefss,
+                                const vector<vector<Boundary>>& boundss,
+                                const vector<BoundaryPrototype>& boundProts,
+                                string inputFileName);
+        void representModSat();
         void printRepresentation();
 
     protected:
@@ -25,6 +26,7 @@ class PiecewiseLinearFunction
         VariableManager var;
 
         void representPiecesModSat();
+        void representLatticeFormula();
 };
 
 #endif // PIECEWISELINEARFUNCTION_H

@@ -149,11 +149,11 @@ PiecewiseLinearFunction InputParser::createPWLInstance()
 
     unsigned dim = boundProts.at(0).size();
 
-    for ( auto i = 1; i < boundProts.size(); i++ )
+    for ( size_t i = 1; i < boundProts.size(); i++ )
         if ( boundProts.at(i).size() != dim )
             throw invalid_argument("Dimension inconsistency.");
 
-    for ( auto i = 0; i < coefss.size(); i++ )
+    for ( size_t i = 0; i < coefss.size(); i++ )
         if ( coefss.at(i).size() != dim )
             throw invalid_argument("Dimension inconsistency.");
 

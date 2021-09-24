@@ -52,31 +52,31 @@ void Formula::negateFormula()
 
 void Formula::addUnits(const Formula& form)
 {
-    for ( auto i = 0; i < form.getUnitClauses().size(); i++ )
+    for ( size_t i = 0; i < form.getUnitClauses().size(); i++ )
         unitClauses.push_back(UnitClause(form.getUnitClauses().at(i).first + unitCounter,
                               form.getUnitClauses().at(i).second));
 
-    for ( auto i = 0; i < form.getNegations().size(); i++ )
+    for ( size_t i = 0; i < form.getNegations().size(); i++ )
         negations.push_back(Negation(form.getNegations().at(i).first + unitCounter,
                             form.getNegations().at(i).second + unitCounter));
 
-    for ( auto i = 0; i < form.getLDisjunctions().size(); i++ )
+    for ( size_t i = 0; i < form.getLDisjunctions().size(); i++ )
         lDisjunctions.push_back(LDisjunction(get<0>(form.getLDisjunctions().at(i)) + unitCounter,
                                 get<1>(form.getLDisjunctions().at(i)) + unitCounter, get<2>(form.getLDisjunctions()[i]) + unitCounter));
 
-    for ( auto i = 0; i < form.getEquivalences().size(); i++ )
+    for ( size_t i = 0; i < form.getEquivalences().size(); i++ )
         equivalences.push_back(Equivalence(get<0>(form.getEquivalences().at(i)) + unitCounter,
                                get<1>(form.getEquivalences().at(i)) + unitCounter, get<2>(form.getEquivalences()[i]) + unitCounter));
 
-    for ( auto i = 0; i < form.getImplications().size(); i++ )
+    for ( size_t i = 0; i < form.getImplications().size(); i++ )
         implications.push_back(Implication(get<0>(form.getImplications().at(i)) + unitCounter,
                                get<1>(form.getImplications().at(i)) + unitCounter, get<2>(form.getImplications()[i]) + unitCounter));
 
-    for ( auto i = 0; i < form.getMaximums().size(); i++ )
+    for ( size_t i = 0; i < form.getMaximums().size(); i++ )
         maximums.push_back(Maximum(get<0>(form.getMaximums().at(i)) + unitCounter,
                                get<1>(form.getMaximums().at(i)) + unitCounter, get<2>(form.getMaximums()[i]) + unitCounter));
 
-    for ( auto i = 0; i < form.getMinimums().size(); i++ )
+    for ( size_t i = 0; i < form.getMinimums().size(); i++ )
         minimums.push_back(Minimum(get<0>(form.getMinimums().at(i)) + unitCounter,
                                get<1>(form.getMinimums().at(i)) + unitCounter, get<2>(form.getMinimums()[i]) + unitCounter));
 }
@@ -154,7 +154,7 @@ void Formula::print(ofstream *output)
         if ( (unitClausesCounter < unitClauses.size()) && (unitClauses.at(unitClausesCounter).first == i) )
         {
             *output << "Unit " << i << " :: Clause      :: ";
-            for ( int j = 0; j < unitClauses.at(unitClausesCounter).second.size(); j++ )
+            for ( size_t j = 0; j < unitClauses.at(unitClausesCounter).second.size(); j++ )
                 *output << unitClauses.at(unitClausesCounter).second.at(j) << " ";
             *output << endl;
 

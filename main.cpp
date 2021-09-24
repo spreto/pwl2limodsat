@@ -23,7 +23,7 @@ int main(int argc, char **argv)
         PiecewiseLinearFunction instance = parser.createPWLInstance();
         cout << "Piecewise Linear Function instantiated." << endl << endl;
         cout << "Building representation... ";
-        instance.representLatticeFormula();
+        instance.representModSat();
         instance.printRepresentation();
         cout << "Done!" << endl << endl;
     }

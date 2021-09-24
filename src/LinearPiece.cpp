@@ -70,27 +70,6 @@ ModSat LinearPiece::binaryModSat(unsigned n, const T& logTerm)
     }
 }
 
-// Multiply a propositional variable for the second time.
-// The propositional variable must have been multiplied by some integer m before.
-// Multiplicative factor n must be at most m.
-Formula LinearPiece::variableSecondMultiplication(unsigned n, Variable var)
-{
-    Clause auxClau;
-
-    if ( n == 0 )
-        return zeroFormula();
-    else if ( n == 1 )
-        auxClau.push_back(var);
-    else
-    {
-        for ( int i = 0; i <= ilogb(n); i++ )
-            if ( n >> i & 1 )
-                auxClau.push_back(var+i+1);
-    }
-
-    return Formula(auxClau);
-}
-
 // Define modsat a constant of type 1/denum by a propositional variable.
 // It is enough to run once for each constant and then ask the variable manager for future use.
 ModSatSet LinearPiece::defineConstant(unsigned denum)
@@ -125,11 +104,32 @@ ModSat LinearPiece::multiplyConstant(unsigned num, unsigned denum)
     return frac;
 }
 
+// Multiply a propositional variable for the second time.
+// The propositional variable must have been multiplied by some integer m before.
+// Multiplicative factor n must be at most m.
+Formula LinearPiece::variableSecondMultiplication(unsigned n, Variable var)
+{
+    Clause auxClau;
+
+    if ( n == 0 )
+        return zeroFormula();
+    else if ( n == 1 )
+        auxClau.push_back(var);
+    else
+    {
+        for ( int i = 0; i <= ilogb(n); i++ )
+            if ( n >> i & 1 )
+                auxClau.push_back(var+i+1);
+    }
+
+    return Formula(auxClau);
+}
+
 void LinearPiece::representModSat()
 {
     bool allZeroCoefficients = true;
 
-    for ( auto i = 0; i<=dim; i++ )
+    for ( unsigned i = 0; i<=dim; i++ )
         if ( pieceCoefficients[i].first != 0 )
             allZeroCoefficients = false;
 
@@ -147,7 +147,7 @@ void LinearPiece::representModSat()
         double betaPositive = 0, betaNegative = 0;
         vector<unsigned> indexes[2];
 
-        for ( auto i = 0; i <= dim; i++ )
+        for ( unsigned i = 0; i <= dim; i++ )
         {
             if ( pieceCoefficients[i].first >= 0 )
             {
@@ -165,7 +165,7 @@ void LinearPiece::representModSat()
 
         unsigned beta = ceil(fmax(betaPositive, betaNegative));
 
-        for ( auto i = 0; i <= dim; i++ )
+        for ( unsigned i = 0; i <= dim; i++ )
             betas.push_back(pieceCoefficients[i].second * beta);
 
         ModSat representation[2];
@@ -176,7 +176,7 @@ void LinearPiece::representModSat()
         {
             bool zeroIndexes = true;
 
-            for ( auto j = 0; j < indexes[J].size(); j++ )
+            for ( size_t j = 0; j < indexes[J].size(); j++ )
                 if ( alphas.at(indexes[J].at(j)) != 0 )
                     zeroIndexes = false;
 
@@ -196,7 +196,7 @@ void LinearPiece::representModSat()
                     representation[J].Phi.insert(representation[J].Phi.end(), msAux.Phi.begin(), msAux.Phi.end());
                 }
 
-                for ( auto j = (indexes[J].at(0) == 0 ? 1 : 0); j < indexes[J].size(); j++ )
+                for ( size_t j = (indexes[J].at(0) == 0 ? 1 : 0); j < indexes[J].size(); j++ )
                 {
                     if ( alphas.at(indexes[J].at(j)) != 0 )
                     {
@@ -251,7 +251,7 @@ ModSat LinearPiece::getRepresentationModSat()
 
 void LinearPiece::printModSatSet(ofstream *output)
 {
-    for ( auto i = 0; i < representationModSat.Phi.size(); i++ )
+    for ( size_t i = 0; i < representationModSat.Phi.size(); i++ )
     {
         *output << "Formula " << i+1 << ":" << endl;
         representationModSat.Phi.at(i).print(output);

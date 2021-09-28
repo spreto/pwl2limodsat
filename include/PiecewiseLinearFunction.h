@@ -3,6 +3,8 @@
 
 #include "RegionalLinearPiece.h"
 
+enum ProcessingMode { Single, Multi };
+
 typedef float BoundaryCoefficient;
 typedef vector<BoundaryCoefficient> BoundaryPrototype;
 
@@ -12,7 +14,13 @@ class PiecewiseLinearFunction
         PiecewiseLinearFunction(const vector<vector<LinearPieceCoefficient>>& coefss,
                                 const vector<vector<Boundary>>& boundss,
                                 const vector<BoundaryPrototype>& boundProts,
+                                string inputFileName,
+                                bool multithreading);
+        PiecewiseLinearFunction(const vector<vector<LinearPieceCoefficient>>& coefss,
+                                const vector<vector<Boundary>>& boundss,
+                                const vector<BoundaryPrototype>& boundProts,
                                 string inputFileName);
+        void setProcessingMode(ProcessingMode mode) { processingMode = mode; }
         void representModSat();
         void printRepresentation();
 
@@ -20,13 +28,18 @@ class PiecewiseLinearFunction
 
     private:
         string outputFileName;
+        ProcessingMode processingMode;
+
         vector<RegionalLinearPiece> pieces;
         vector<BoundaryPrototype> boundaryPrototypes;
         Formula latticeFormula;
+
         VariableManager var;
+        bool modsatTranslation = false;
 
         void representPiecesModSat();
-        void representLatticeFormula();
+        vector<Formula> partialPhiOmega(unsigned thread, unsigned compByThread);
+        void representLatticeFormula(unsigned maxThreadsNum);
 };
 
 #endif // PIECEWISELINEARFUNCTION_H

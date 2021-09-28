@@ -30,15 +30,19 @@ class LinearPiece
 
     private:
         string outputFileName;
+
+        ModSat representationModSat;
+
         VariableManager *var;
         bool ownVariableManager = false;
-        ModSat representationModSat;
+        bool modsatTranslation = false;
 
         Formula zeroFormula();
         template<class T> ModSat binaryModSat(unsigned n, const T& logTerm);
         ModSatSet defineConstant(unsigned denum);
         ModSat multiplyConstant(unsigned num, unsigned denum);
         Formula variableSecondMultiplication(unsigned n, Variable var);
+        void pwl2limodsat();
 };
 
 #endif // LINEARPIECE_H

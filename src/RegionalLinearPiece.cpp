@@ -14,15 +14,22 @@ RegionalLinearPiece::RegionalLinearPiece(const vector<LinearPieceCoefficient>& c
     boundaries(bounds),
     boundaryPrototypes(boundProts) {}
 
-bool RegionalLinearPiece::isAbove(const RegionalLinearPiece& comparedRLP)
+bool RegionalLinearPiece::position(Position pos, const RegionalLinearPiece& comparedRLP)
 {
     vector<float> objFunc;
 
-    for ( unsigned i = 0; i <= dim; i++ )
-        objFunc.push_back( ( (float) pieceCoefficients.at(i).first /
-                             (float) pieceCoefficients.at(i).second ) -
-                           ( (float) comparedRLP.getPieceCoefficients().at(i).first /
-                             (float) comparedRLP.getPieceCoefficients().at(i).second ) );
+    if ( pos == Above )
+        for ( unsigned i = 0; i <= dim; i++ )
+            objFunc.push_back( ( (float) pieceCoefficients.at(i).first /
+                                 (float) pieceCoefficients.at(i).second ) -
+                               ( (float) comparedRLP.getPieceCoefficients().at(i).first /
+                                 (float) comparedRLP.getPieceCoefficients().at(i).second ) );
+    else if ( pos == Below )
+        for ( unsigned i = 0; i <= dim; i++ )
+            objFunc.push_back( ( (float) comparedRLP.getPieceCoefficients().at(i).first /
+                                 (float) comparedRLP.getPieceCoefficients().at(i).second ) -
+                               ( (float) pieceCoefficients.at(i).first /
+                                 (float) pieceCoefficients.at(i).second ) );
 
     float K = -objFunc.at(0);
 
@@ -55,4 +62,14 @@ bool RegionalLinearPiece::isAbove(const RegionalLinearPiece& comparedRLP)
         return true;
     else
         return false;
+}
+
+bool RegionalLinearPiece::isAbove(const RegionalLinearPiece& comparedRLP)
+{
+    return position(Above, comparedRLP);
+}
+
+bool RegionalLinearPiece::isBelow(const RegionalLinearPiece& comparedRLP)
+{
+    return position(Below, comparedRLP);
 }

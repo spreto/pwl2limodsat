@@ -34,8 +34,7 @@ Formula LinearPiece::zeroFormula()
     return Formula( Formula(zeroClau), Neg );
 }
 
-template<class T>
-ModSat LinearPiece::binaryModSat(unsigned n, const T& logTerm)
+template<class T> ModSat LinearPiece::binaryModSat(unsigned n, const T& logTerm)
 {
     ModSat binMS;
 
@@ -125,7 +124,7 @@ Formula LinearPiece::variableSecondMultiplication(unsigned n, Variable var)
     return Formula(auxClau);
 }
 
-void LinearPiece::representModSat()
+void LinearPiece::pwl2limodsat()
 {
     bool allZeroCoefficients = true;
 
@@ -244,13 +243,27 @@ void LinearPiece::representModSat()
     }
 }
 
+void LinearPiece::representModSat()
+{
+    if ( !modsatTranslation )
+        pwl2limodsat();
+
+    modsatTranslation = true;
+}
+
 ModSat LinearPiece::getRepresentationModSat()
 {
+    if ( !modsatTranslation )
+        representModSat();
+
     return representationModSat;
 }
 
 void LinearPiece::printModSatSet(ofstream *output)
 {
+    if ( !modsatTranslation )
+        representModSat();
+
     for ( size_t i = 0; i < representationModSat.Phi.size(); i++ )
     {
         *output << "Formula " << i+1 << ":" << endl;
@@ -260,6 +273,9 @@ void LinearPiece::printModSatSet(ofstream *output)
 
 void LinearPiece::printRepresentation()
 {
+    if ( !modsatTranslation )
+        representModSat();
+
     ofstream outputFile(outputFileName);
 
     outputFile << "-= Formula phi =-" << endl << endl;

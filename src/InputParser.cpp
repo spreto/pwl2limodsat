@@ -2,15 +2,15 @@
 
 #include "InputParser.h"
 
-using namespace std;
-
+namespace pwl2limodsat
+{
 InputParser::InputParser(const char* iFN) :
     inputFileName(iFN)
 {
     inputFile.open(inputFileName);
 
     if ( !inputFile.is_open() )
-        throw invalid_argument("Unable to open input file.");
+        throw std::invalid_argument("Unable to open input file.");
     else
     {
         nextLine();
@@ -19,7 +19,7 @@ InputParser::InputParser(const char* iFN) :
         else if ( currentLine.compare(0,3,"pwl") == 0 )
             mode = PWL;
         else
-            throw invalid_argument("Not in standard pwl file format.");
+            throw std::invalid_argument("Not in standard pwl file format.");
     }
 }
 
@@ -36,11 +36,12 @@ void InputParser::nextLine()
         getline(inputFile, currentLine);
 }
 
-vector<LinearPieceCoefficient> InputParser::readLinearPiece(unsigned beginingPosition)
+LinearPieceData InputParser::readLinearPiece(unsigned beginingPosition)
 {
-    vector<LinearPieceCoefficient> coefs;
+    LinearPieceData lpData;
     size_t beginPosition = 0, endPosition;
-    int numerator, denumerator;
+    LPCoefInteger numerator;
+    LPCoefNonNegative denumerator;
 
     do
     {
@@ -48,7 +49,7 @@ vector<LinearPieceCoefficient> InputParser::readLinearPiece(unsigned beginingPos
         endPosition = currentLine.find_first_of(" ", beginPosition);
 
         if ( (beginPosition > currentLine.size()) || (endPosition > currentLine.size()) )
-            throw invalid_argument("Not in standard pwl file format.");
+            throw std::invalid_argument("Not in standard pwl file format.");
         else
         {
             numerator = stoi( currentLine.substr( beginPosition, endPosition-beginPosition ) );
@@ -56,34 +57,33 @@ vector<LinearPieceCoefficient> InputParser::readLinearPiece(unsigned beginingPos
             endPosition = currentLine.find_first_of(" ", beginPosition);
         }
         if ( beginPosition > currentLine.size() )
-            throw invalid_argument("Not in standard pwl file format.");
+            throw std::invalid_argument("Not in standard pwl file format.");
         else
         {
             denumerator = stoi( currentLine.substr( beginPosition, endPosition-beginPosition ) );
             if ( denumerator < 1 )
-                throw out_of_range("Fraction denumerator must be positive.");
+                throw std::out_of_range("Fraction denumerator must be positive.");
             else
-                coefs.push_back( LinearPieceCoefficient( numerator, (unsigned) denumerator ) );
+                lpData.push_back( LinearPieceCoefficient( numerator, (unsigned) denumerator ) );
         }
     } while ( endPosition < currentLine.size() );
 
-    return coefs;
+    return lpData;
 }
 
-LinearPiece InputParser::createTLInstance()
+LinearPieceData InputParser::getTLInstanceData()
 {
-    return LinearPiece(readLinearPiece(3), inputFileName);
+    return readLinearPiece(3);
 }
 
-PiecewiseLinearFunction InputParser::createPWLInstance()
+void InputParser::buildPWLInstance()
 {
-    vector<BoundaryPrototype> boundProts;
-    vector<vector<LinearPieceCoefficient>> coefss;
-    vector<vector<Boundary>> boundss;
+    BoundaryPrototypeCollection boundProtCollection;
+    PiecewiseLinearFunctionData pwlData;
 
     BoundaryPrototype boundProt;
-    vector<LinearPieceCoefficient> coefs;
-    vector<Boundary> bounds;
+    LinearPieceData lpData;
+    BoundaryCollection boundaryCollection;
 
     size_t beginPosition = 0, endPosition;
     unsigned boundaryCounter = 0;
@@ -101,12 +101,12 @@ PiecewiseLinearFunction InputParser::createPWLInstance()
                 endPosition = currentLine.find_first_of(" ", beginPosition);
 
                 if ( beginPosition > currentLine.size() )
-                    throw invalid_argument("Not in standard pwl file format.");
+                    throw std::invalid_argument("Not in standard pwl file format.");
                 else
                     boundProt.push_back(stof(currentLine.substr(beginPosition, endPosition-beginPosition)));
             } while ( endPosition < currentLine.size() );
 
-            boundProts.push_back(boundProt);
+            boundProtCollection.push_back(boundProt);
             boundProt.clear();
             boundaryCounter++;
             beginPosition = 0;
@@ -115,47 +115,67 @@ PiecewiseLinearFunction InputParser::createPWLInstance()
         }
         else if ( currentLine.compare(0,2,"p ") == 0 )
         {
-            coefs = readLinearPiece(2);
+            lpData = readLinearPiece(2);
             nextLine();
 
             while ( (currentLine.compare(0,2,"g ") == 0) || (currentLine.compare(0,2,"l ") == 0) )
             {
                 if ( currentLine.size() < 3 )
-                    throw invalid_argument("Not in standard pwl file format.");
+                    throw std::invalid_argument("Not in standard pwl file format.");
                 else
                     boundaryNumber = (unsigned) stoul(currentLine.substr(2, currentLine.size()-2));
 
                 if ( (boundaryNumber > 0) && (boundaryNumber <= boundaryCounter) )
                 {
                     if ( currentLine.compare(0,2,"g ") == 0 )
-                        bounds.push_back(pair<unsigned,BoundarySymbol>(boundaryNumber-1, GeqZero));
+                        boundaryCollection.push_back(Boundary(boundaryNumber-1, GeqZero));
                     else if ( currentLine.compare(0,2,"l ") == 0 )
-                        bounds.push_back(pair<unsigned,BoundarySymbol>(boundaryNumber-1, LeqZero));
+                        boundaryCollection.push_back(Boundary(boundaryNumber-1, LeqZero));
                 }
                 else
-                    throw out_of_range("Nonexistent boundary prototype.");
+                    throw std::out_of_range("Nonexistent boundary prototype.");
 
                 nextLine();
             }
 
-            boundss.push_back(bounds);
-            coefss.push_back(coefs);
-            bounds.clear();
-            coefs.clear();
+            RegionalLinearPieceData rlpData = { lpData, boundaryCollection };
+            pwlData.push_back(rlpData);
+            lpData.clear();
+            boundaryCollection.clear();
         }
         else
-            throw invalid_argument("Not in standard pwl file format.");
+            throw std::invalid_argument("Not in standard pwl file format.");
     }
 
-    unsigned dim = boundProts.at(0).size();
+    unsigned dim = boundProtCollection.at(0).size();
 
-    for ( size_t i = 1; i < boundProts.size(); i++ )
-        if ( boundProts.at(i).size() != dim )
-            throw invalid_argument("Dimension inconsistency.");
+    for ( size_t i = 1; i < boundProtCollection.size(); i++ )
+        if ( boundProtCollection.at(i).size() != dim )
+            throw std::invalid_argument("Dimension inconsistency.");
 
-    for ( size_t i = 0; i < coefss.size(); i++ )
-        if ( coefss.at(i).size() != dim )
-            throw invalid_argument("Dimension inconsistency.");
+    for ( size_t i = 0; i < pwlData.size(); i++ )
+        if ( pwlData.at(i).lpData.size() != dim )
+            throw std::invalid_argument("Dimension inconsistency.");
 
-    return PiecewiseLinearFunction(coefss, boundss, boundProts, inputFileName);
+    pwlInstanceData = pwlData;
+    pwlInstanceBoundProt = boundProtCollection;
+
+    pwlTranslation = true;
+}
+
+PiecewiseLinearFunctionData InputParser::getPWLInstanceData()
+{
+    if ( !pwlTranslation )
+        buildPWLInstance();
+
+    return pwlInstanceData;
+}
+
+BoundaryPrototypeCollection InputParser::getPWLInstanceBoundProt()
+{
+    if ( !pwlTranslation )
+        buildPWLInstance();
+
+    return pwlInstanceBoundProt;
+}
 }

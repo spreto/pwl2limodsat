@@ -4,57 +4,56 @@
 
 #define PREC 100000
 
-using namespace soplex;
-
-RegionalLinearPiece::RegionalLinearPiece(const vector<LinearPieceCoefficient>& coefs,
-                                         const vector<Boundary>& bounds,
-                                         const vector<BoundaryPrototype> *boundProts,
+namespace pwl2limodsat
+{
+RegionalLinearPiece::RegionalLinearPiece(const RegionalLinearPieceData& rlpData,
+                                         const BoundaryPrototypeCollection *bpData,
                                          VariableManager *varMan) :
-    LinearPiece(coefs, varMan),
-    boundaries(bounds),
-    boundaryPrototypes(boundProts) {}
+    LinearPiece(rlpData.lpData, varMan),
+    boundaryData(rlpData.bound),
+    boundaryPrototypeData(bpData) {}
 
 bool RegionalLinearPiece::position(Position pos, const RegionalLinearPiece& comparedRLP)
 {
-    vector<float> objFunc;
+    std::vector<float> objFunc;
 
-    if ( pos == Above )
+    if ( pos == ComparedIsAbove )
         for ( unsigned i = 0; i <= dim; i++ )
-            objFunc.push_back( ( (float) pieceCoefficients.at(i).first /
-                                 (float) pieceCoefficients.at(i).second ) -
-                               ( (float) comparedRLP.getPieceCoefficients().at(i).first /
-                                 (float) comparedRLP.getPieceCoefficients().at(i).second ) );
-    else if ( pos == Below )
+            objFunc.push_back( ( (float) linearPieceData.at(i).first /
+                                 (float) linearPieceData.at(i).second ) -
+                               ( (float) comparedRLP.getLinearPieceData().at(i).first /
+                                 (float) comparedRLP.getLinearPieceData().at(i).second ) );
+    else if ( pos == ComparedIsBelow )
         for ( unsigned i = 0; i <= dim; i++ )
-            objFunc.push_back( ( (float) comparedRLP.getPieceCoefficients().at(i).first /
-                                 (float) comparedRLP.getPieceCoefficients().at(i).second ) -
-                               ( (float) pieceCoefficients.at(i).first /
-                                 (float) pieceCoefficients.at(i).second ) );
+            objFunc.push_back( ( (float) comparedRLP.getLinearPieceData().at(i).first /
+                                 (float) comparedRLP.getLinearPieceData().at(i).second ) -
+                               ( (float) linearPieceData.at(i).first /
+                                 (float) linearPieceData.at(i).second ) );
 
     float K = -objFunc.at(0);
 
-    SoPlex sop;
+    soplex::SoPlex sop;
 
-    DSVector dummycol(0);
+    soplex::DSVector dummycol(0);
     for ( unsigned i = 1; i <= dim; i++ )
-        sop.addColReal(LPCol(objFunc.at(i), dummycol, 1, 0));
+        sop.addColReal(soplex::LPCol(objFunc.at(i), dummycol, 1, 0));
 
-    DSVector row(dim);
-    for ( size_t i = 0; i < boundaries.size(); i++ )
+    soplex::DSVector row(dim);
+    for ( size_t i = 0; i < boundaryData.size(); i++ )
     {
         for ( size_t j = 1; j <= dim; j++ )
-            row.add(j-1, boundaryPrototypes->at(boundaries.at(i).first).at(j));
+            row.add(j-1, boundaryPrototypeData->at(boundaryData.at(i).first).at(j));
 
-        if ( boundaries.at(i).second == GeqZero )
-            sop.addRowReal(LPRow(-boundaryPrototypes->at(boundaries.at(i).first).at(0), row, infinity));
-        else if ( boundaries.at(i).second == LeqZero )
-            sop.addRowReal(LPRow(-infinity, row, -boundaryPrototypes->at(boundaries.at(i).first).at(0)));
+        if ( boundaryData.at(i).second == GeqZero )
+            sop.addRowReal(soplex::LPRow(-boundaryPrototypeData->at(boundaryData.at(i).first).at(0), row, soplex::infinity));
+        else if ( boundaryData.at(i).second == LeqZero )
+            sop.addRowReal(soplex::LPRow(-soplex::infinity, row, -boundaryPrototypeData->at(boundaryData.at(i).first).at(0)));
 
         row.clear();
     }
 
-    sop.setIntParam(SoPlex::VERBOSITY, SoPlex::VERBOSITY_ERROR);
-    sop.setIntParam(SoPlex::OBJSENSE, SoPlex::OBJSENSE_MAXIMIZE);
+    sop.setIntParam(soplex::SoPlex::VERBOSITY, soplex::SoPlex::VERBOSITY_ERROR);
+    sop.setIntParam(soplex::SoPlex::OBJSENSE, soplex::SoPlex::OBJSENSE_MAXIMIZE);
     sop.optimize();
     float Max = sop.objValueReal();
 
@@ -64,12 +63,13 @@ bool RegionalLinearPiece::position(Position pos, const RegionalLinearPiece& comp
         return false;
 }
 
-bool RegionalLinearPiece::isAbove(const RegionalLinearPiece& comparedRLP)
+bool RegionalLinearPiece::comparedIsAbove(const RegionalLinearPiece& comparedRLP)
 {
-    return position(Above, comparedRLP);
+    return position(ComparedIsAbove, comparedRLP);
 }
 
-bool RegionalLinearPiece::isBelow(const RegionalLinearPiece& comparedRLP)
+bool RegionalLinearPiece::comparedIsBelow(const RegionalLinearPiece& comparedRLP)
 {
-    return position(Below, comparedRLP);
+    return position(ComparedIsBelow, comparedRLP);
+}
 }

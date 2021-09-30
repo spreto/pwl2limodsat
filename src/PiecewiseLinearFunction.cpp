@@ -1,20 +1,19 @@
 #include "PiecewiseLinearFunction.h"
 #include <iostream>
 #include <future>
-#include <math.h>
+#include <cmath>
 
-using namespace std;
-
-PiecewiseLinearFunction::PiecewiseLinearFunction(const vector<vector<LinearPieceCoefficient>>& coefss,
-                                                 const vector<vector<Boundary>>& boundss,
-                                                 const vector<BoundaryPrototype>& boundProts,
-                                                 string inputFileName,
-                                                 bool multithreading) :
-    boundaryPrototypes(boundProts),
-    var(VariableManager(coefss.at(0).size()-1))
+namespace pwl2limodsat
 {
-    for ( size_t i = 0; i < coefss.size(); i++ )
-        pieces.push_back(RegionalLinearPiece(coefss.at(i), boundss.at(i), &boundaryPrototypes, &var));
+PiecewiseLinearFunction::PiecewiseLinearFunction(const PiecewiseLinearFunctionData& pwlData,
+                                                 const BoundaryPrototypeCollection& boundProtData,
+                                                 std::string inputFileName,
+                                                 bool multithreading) :
+    boundaryPrototypeData(boundProtData),
+    var(VariableManager(pwlData.at(0).lpData.size() - 1))
+{
+    for ( size_t i = 0; i < pwlData.size(); i++ )
+        linearPieceCollection.push_back(RegionalLinearPiece(pwlData.at(i), &boundaryPrototypeData, &var));
 
     if ( inputFileName.substr(inputFileName.size()-4,4) == ".pwl" )
         outputFileName = inputFileName.substr(0,inputFileName.size()-4);
@@ -23,33 +22,56 @@ PiecewiseLinearFunction::PiecewiseLinearFunction(const vector<vector<LinearPiece
 
     processingMode = ( multithreading ? Multi : Single );
 
-    outputFileName.append(".out");
+    outputFileName.append(".limodsat");
 }
 
-PiecewiseLinearFunction::PiecewiseLinearFunction(const vector<vector<LinearPieceCoefficient>>& coefss,
-                                                 const vector<vector<Boundary>>& boundss,
-                                                 const vector<BoundaryPrototype>& boundProts,
-                                                 string inputFileName) :
-    PiecewiseLinearFunction(coefss, boundss, boundProts, inputFileName, false) {}
+PiecewiseLinearFunction::PiecewiseLinearFunction(const PiecewiseLinearFunctionData& pwlData,
+                                                 const BoundaryPrototypeCollection& boundProtData,
+                                                 std::string inputFileName) :
+    PiecewiseLinearFunction(pwlData, boundProtData, inputFileName, false) {}
+
+bool PiecewiseLinearFunction::hasLatticeProperty()
+{
+    bool hasLatticeProperty = true;
+
+    for ( size_t i = 0; i < linearPieceCollection.size() && hasLatticeProperty; i++ )
+        for ( size_t j = 0; j < linearPieceCollection.size() && hasLatticeProperty; j++ )
+            if ( i != j )
+            {
+                bool found = false;
+
+                for ( size_t k = 0; k < linearPieceCollection.size() && !found; k++ )
+                {
+                    if ( linearPieceCollection.at(i).comparedIsBelow(linearPieceCollection.at(k)) )
+                        if ( linearPieceCollection.at(j).comparedIsAbove(linearPieceCollection.at(k)) )
+                            found = true;
+                }
+
+                if ( !found )
+                    hasLatticeProperty = false;
+            }
+
+    return hasLatticeProperty;
+}
 
 void PiecewiseLinearFunction::representPiecesModSat()
 {
-    for ( size_t i = 0; i < pieces.size(); i++ )
-        pieces.at(i).representModSat();
+    for ( size_t i = 0; i < linearPieceCollection.size(); i++ )
+        linearPieceCollection.at(i).representModSat();
 }
 
-vector<Formula> PiecewiseLinearFunction::partialPhiOmega(unsigned thread, unsigned compByThread)
+std::vector<Formula> PiecewiseLinearFunction::partialPhiOmega(unsigned thread, unsigned compByThread)
 {
-    vector<Formula> partPhiOmega;
+    std::vector<Formula> partPhiOmega;
 
     for ( size_t i = thread * compByThread; i < (thread + 1) * compByThread; i++ )
     {
-        partPhiOmega.push_back( pieces.at(i).getRepresentationModSat().phi );
+        partPhiOmega.push_back( linearPieceCollection.at(i).getRepresentationModSat().phi );
 
-        for ( size_t k = 0; k < pieces.size(); k++ )
+        for ( size_t k = 0; k < linearPieceCollection.size(); k++ )
             if ( k != i )
-                if ( pieces.at(i).isAbove(pieces.at(k)) )
-                    partPhiOmega.back().addMinimum(pieces.at(k).getRepresentationModSat().phi);
+                if ( linearPieceCollection.at(i).comparedIsAbove(linearPieceCollection.at(k)) )
+                    partPhiOmega.back().addMinimum(linearPieceCollection.at(k).getRepresentationModSat().phi);
     }
 
     return partPhiOmega;
@@ -57,22 +79,22 @@ vector<Formula> PiecewiseLinearFunction::partialPhiOmega(unsigned thread, unsign
 
 void PiecewiseLinearFunction::representLatticeFormula(unsigned maxThreadsNum)
 {
-    unsigned compByThread = ceil( (float) pieces.size() / (float) maxThreadsNum );
-    unsigned threadsNum = ceil( (float) pieces.size() / (float) compByThread );
+    unsigned compByThread = ceil( (float) linearPieceCollection.size() / (float) maxThreadsNum );
+    unsigned threadsNum = ceil( (float) linearPieceCollection.size() / (float) compByThread );
 
-    vector<future<vector<Formula>>> phiOmegaFut;
+    std::vector<std::future<std::vector<Formula>>> phiOmegaFut;
     for ( unsigned thread = 0; thread < threadsNum - 1; thread++ )
         phiOmegaFut.push_back( async(&PiecewiseLinearFunction::partialPhiOmega, this, thread, compByThread) );
 
-    vector<Formula> phiOmegaFirst;
-    for ( size_t i = (threadsNum - 1) * compByThread; i < pieces.size(); i++ )
+    std::vector<Formula> phiOmegaFirst;
+    for ( size_t i = (threadsNum - 1) * compByThread; i < linearPieceCollection.size(); i++ )
     {
-        phiOmegaFirst.push_back( pieces.at(i).getRepresentationModSat().phi );
+        phiOmegaFirst.push_back( linearPieceCollection.at(i).getRepresentationModSat().phi );
 
-        for ( size_t k = 0; k < pieces.size(); k++ )
+        for ( size_t k = 0; k < linearPieceCollection.size(); k++ )
             if ( k != i )
-                if ( pieces.at(i).isAbove(pieces.at(k)) )
-                    phiOmegaFirst.back().addMinimum(pieces.at(k).getRepresentationModSat().phi);
+                if ( linearPieceCollection.at(i).comparedIsAbove(linearPieceCollection.at(k)) )
+                    phiOmegaFirst.back().addMinimum(linearPieceCollection.at(k).getRepresentationModSat().phi);
     }
 
     latticeFormula = phiOmegaFirst.at(0);
@@ -81,7 +103,7 @@ void PiecewiseLinearFunction::representLatticeFormula(unsigned maxThreadsNum)
 
     for ( unsigned thread = 0; thread < threadsNum - 1; thread++ )
     {
-        vector<Formula> phiOmega = phiOmegaFut.at(thread).get();
+        std::vector<Formula> phiOmega = phiOmegaFut.at(thread).get();
 
         for ( size_t i = 0; i < phiOmega.size(); i++ )
             latticeFormula.addMaximum(phiOmega.at(i));
@@ -93,7 +115,7 @@ void PiecewiseLinearFunction::representModSat()
     representPiecesModSat();
 
     if ( processingMode == Multi )
-        representLatticeFormula(thread::hardware_concurrency());
+        representLatticeFormula(std::thread::hardware_concurrency());
     else if ( processingMode == Single )
         representLatticeFormula(1);
 
@@ -105,16 +127,17 @@ void PiecewiseLinearFunction::printRepresentation()
     if ( !modsatTranslation )
         representModSat();
 
-    ofstream outputFile(outputFileName);
+    std::ofstream outputFile(outputFileName);
 
-    outputFile << "-= Formula phi =-" << endl << endl;
+    outputFile << "-= Formula phi =-" << std::endl << std::endl;
     latticeFormula.print(&outputFile);
 
-    outputFile << endl << "-= MODSAT Set Phi =-" << endl;
+    outputFile << std::endl << "-= MODSAT Set Phi =-" << std::endl;
 
-    for ( size_t i = 0; i < pieces.size(); i++ )
+    for ( size_t i = 0; i < linearPieceCollection.size(); i++ )
     {
-        outputFile << endl << "-= Linear Piece " << i+1 << " =-" << endl;
-        pieces.at(i).printModSatSet(&outputFile);
+        outputFile << std::endl << "-= Linear Piece " << i+1 << " =-" << std::endl;
+        linearPieceCollection.at(i).printModSatSet(&outputFile);
     }
+}
 }

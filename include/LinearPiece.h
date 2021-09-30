@@ -4,32 +4,29 @@
 #include <vector>
 #include <string>
 #include <fstream>
-
 #include "VariableManager.h"
 #include "Formula.h"
 
-using namespace std;
-
-typedef pair<int,unsigned> LinearPieceCoefficient;
-
+namespace pwl2limodsat
+{
 class LinearPiece
 {
     public:
-        LinearPiece(const vector<LinearPieceCoefficient>& coefs, VariableManager *varMan);
-        LinearPiece(const vector<LinearPieceCoefficient>& coefs, string inputFileName);
+        LinearPiece(const LinearPieceData& data, VariableManager *varMan);
+        LinearPiece(const LinearPieceData& data, std::string inputFileName);
         ~LinearPiece();
 
         void representModSat();
         ModSat getRepresentationModSat();
-        void printModSatSet(ofstream *output);
+        void printModSatSet(std::ofstream *output);
         void printRepresentation();
 
     protected:
-        vector<LinearPieceCoefficient> pieceCoefficients;
+        LinearPieceData linearPieceData;
         unsigned dim;
 
     private:
-        string outputFileName;
+        std::string outputFileName;
 
         ModSat representationModSat;
 
@@ -44,5 +41,6 @@ class LinearPiece
         Formula variableSecondMultiplication(unsigned n, Variable var);
         void pwl2limodsat();
 };
+}
 
 #endif // LINEARPIECE_H

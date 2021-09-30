@@ -39,7 +39,7 @@ pwl_test = []
 # 1: normalized random linear
 # 2: simple region piecewise linear
 # 3: cubic region piecewise linear
-TEST_TYPE = 3
+TEST_TYPE = 1
 MAXDIMENSIONSTHREADING = 1
 
 NUMEVALUATIONS = 100
@@ -47,9 +47,9 @@ DECPRECISION = 6
 DECPRECISION_form = ".6f"
 
 # Used for types 0 and 1
-# MAXDIMENSION = 50
-# NUMTESTSBYCONFIG = 100
-# MAXINTEGER = 100
+MAXDIMENSION = 50
+NUMTESTSBYCONFIG = 100
+MAXINTEGER = 100
 
 # Used for type 2
 # MAXDIMENSION = 50
@@ -58,10 +58,10 @@ DECPRECISION_form = ".6f"
 # MAXREGIONALPARAM = 20
 
 # Used for type 3
-MAXDIMENSION = 9
-NUMTESTSBYCONFIG = 30
-MAXINTEGER = 30
-MAXREGIONALPARAM = 7
+# MAXDIMENSION = 9
+# NUMTESTSBYCONFIG = 30
+# MAXINTEGER = 30
+# MAXREGIONALPARAM = 7
 
 #   create tl instance   ##############################################################################################
 #######################################################################################################################
@@ -330,7 +330,8 @@ def testTl(instance_data, test_file_name, instance_dimension):
 
     for eval_num in range(NUMEVALUATIONS):
         values = generateValues(instance_dimension)
-        createSmt(test_file_name+".out", test_file_name+"_"+str(eval_num)+".smt", instance_dimension, values)
+#        createSmt(test_file_name+".out", test_file_name+"_"+str(eval_num)+".smt", instance_dimension, values)
+        createSmt(test_file_name+".limodsat", test_file_name+"_"+str(eval_num)+".smt", instance_dimension, values)
 
         evaluation = evaluateTl(instance_data, values)
         evaluationModSat = evaluateSmt(test_file_name+"_"+str(eval_num)+".smt")
@@ -386,7 +387,8 @@ def testPwl(instance_data, test_file_name, instance_dimension):
 
     for eval_num in range(NUMEVALUATIONS):
         values = generateValues(instance_dimension)
-        createSmt(test_file_name+".out", test_file_name+"_"+str(eval_num)+".smt", instance_dimension, values)
+#        createSmt(test_file_name+".out", test_file_name+"_"+str(eval_num)+".smt", instance_dimension, values)
+        createSmt(test_file_name+".limodsat", test_file_name+"_"+str(eval_num)+".smt", instance_dimension, values)
 
         evaluation = evaluatePwl(instance_data, values, instance_dimension)
         evaluationModSat = evaluateSmt(test_file_name+"_"+str(eval_num)+".smt")
@@ -817,7 +819,7 @@ def testRunnerTl(genType, testName):
 
             while not finished:
                 for th in range(len(thr_test)):
-                    if not thr_test[th].isAlive():
+                    if not thr_test[th].is_alive():
                         finished_thr_test[th] = True
 
                 finished = True
@@ -846,7 +848,7 @@ def testRunnerPwl(genType, testName):
 
             while not finished:
                 for th in range(len(thr_test)):
-                    if not thr_test[th].isAlive():
+                    if not thr_test[th].is_alive():
                         finished_thr_test[th] = True
 
                 finished = True
@@ -880,7 +882,7 @@ def testRunnerPwl2(genType, testName):
 
             while not finished:
                 for th in range(len(thr_test)):
-                    if not thr_test[th].isAlive():
+                    if not thr_test[th].is_alive():
                         finished_thr_test[th] = True
 
                 finished = True

@@ -5,20 +5,18 @@
 #include <tuple>
 #include <fstream>
 
-using namespace std;
-
 enum LogicalSymbol { Neg, Lor, Equiv, Impl, Max, Min };
 
 typedef int Literal;
-typedef vector<Literal> Clause;
-typedef pair<unsigned,Clause> UnitClause;
-typedef pair<unsigned,unsigned> Negation;
-typedef tuple<unsigned,unsigned,unsigned> BinaryOperation;
-typedef tuple<unsigned,unsigned,unsigned> LDisjunction;
-typedef tuple<unsigned,unsigned,unsigned> Equivalence;
-typedef tuple<unsigned,unsigned,unsigned> Implication;
-typedef tuple<unsigned,unsigned,unsigned> Maximum;
-typedef tuple<unsigned,unsigned,unsigned> Minimum;
+typedef std::vector<Literal> Clause;
+typedef std::pair<unsigned,Clause> UnitClause;
+typedef std::pair<unsigned,unsigned> Negation;
+typedef std::tuple<unsigned,unsigned,unsigned> BinaryOperation;
+typedef std::tuple<unsigned,unsigned,unsigned> LDisjunction;
+typedef std::tuple<unsigned,unsigned,unsigned> Equivalence;
+typedef std::tuple<unsigned,unsigned,unsigned> Implication;
+typedef std::tuple<unsigned,unsigned,unsigned> Maximum;
+typedef std::tuple<unsigned,unsigned,unsigned> Minimum;
 
 typedef unsigned Variable;
 
@@ -41,31 +39,31 @@ class Formula
         void addMinimum(const Formula& form);
 
         unsigned getUnitCounter() const { return unitCounter; }
-        vector<UnitClause> getUnitClauses() const { return unitClauses; }
-        vector<Negation> getNegations() const { return negations; }
-        vector<LDisjunction> getLDisjunctions() const { return lDisjunctions; }
-        vector<Equivalence> getEquivalences() const { return equivalences; }
-        vector<Implication> getImplications() const { return implications; }
-        vector<Maximum> getMaximums() const { return maximums; }
-        vector<Minimum> getMinimums() const { return minimums; }
+        std::vector<UnitClause> getUnitClauses() const { return unitClauses; }
+        std::vector<Negation> getNegations() const { return negations; }
+        std::vector<LDisjunction> getLDisjunctions() const { return lDisjunctions; }
+        std::vector<Equivalence> getEquivalences() const { return equivalences; }
+        std::vector<Implication> getImplications() const { return implications; }
+        std::vector<Maximum> getMaximums() const { return maximums; }
+        std::vector<Minimum> getMinimums() const { return minimums; }
 
-        void print(ofstream *output);
+        void print(std::ofstream *output);
 
     private:
         unsigned unitCounter = 0;
-        vector<UnitClause> unitClauses;
-        vector<Negation> negations;
-        vector<LDisjunction> lDisjunctions;
-        vector<Equivalence> equivalences;
-        vector<Implication> implications;
-        vector<Maximum> maximums;
-        vector<Minimum> minimums;
+        std::vector<UnitClause> unitClauses;
+        std::vector<Negation> negations;
+        std::vector<LDisjunction> lDisjunctions;
+        std::vector<Equivalence> equivalences;
+        std::vector<Implication> implications;
+        std::vector<Maximum> maximums;
+        std::vector<Minimum> minimums;
 
         void addUnits(const Formula& form);
         void addBinaryOperation(const Formula& form, LogicalSymbol binSym);
 };
 
-typedef vector<Formula> ModSatSet;
+typedef std::vector<Formula> ModSatSet;
 
 struct ModSat
 {

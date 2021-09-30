@@ -2,11 +2,10 @@
 #define VARIABLEMANAGER_H
 
 #include <map>
+#include "pwl2limodsat.h"
 
-using namespace std;
-
-typedef unsigned Variable;
-
+namespace pwl2limodsat
+{
 class VariableManager
 {
     public:
@@ -26,8 +25,9 @@ class VariableManager
         unsigned counter;
         Variable zero = 0;
         bool zeroDefined = false;
-        map<unsigned,Variable> constantsMap;
-        map<unsigned,Variable> auxMultMap;
+        std::map<unsigned,Variable> constantsMap;
+        std::map<unsigned,Variable> auxMultMap;
 };
+}
 
 #endif // VARIABLEMANAGER_H

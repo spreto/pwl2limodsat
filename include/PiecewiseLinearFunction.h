@@ -3,43 +3,41 @@
 
 #include "RegionalLinearPiece.h"
 
-enum ProcessingMode { Single, Multi };
-
-typedef float BoundaryCoefficient;
-typedef vector<BoundaryCoefficient> BoundaryPrototype;
-
+namespace pwl2limodsat
+{
 class PiecewiseLinearFunction
 {
     public:
-        PiecewiseLinearFunction(const vector<vector<LinearPieceCoefficient>>& coefss,
-                                const vector<vector<Boundary>>& boundss,
-                                const vector<BoundaryPrototype>& boundProts,
-                                string inputFileName,
+        PiecewiseLinearFunction(const PiecewiseLinearFunctionData& pwlData,
+                                const BoundaryPrototypeCollection& boundProtData,
+                                std::string inputFileName,
                                 bool multithreading);
-        PiecewiseLinearFunction(const vector<vector<LinearPieceCoefficient>>& coefss,
-                                const vector<vector<Boundary>>& boundss,
-                                const vector<BoundaryPrototype>& boundProts,
-                                string inputFileName);
-        void setProcessingMode(ProcessingMode mode) { processingMode = mode; }
+        PiecewiseLinearFunction(const PiecewiseLinearFunctionData& pwlData,
+                                const BoundaryPrototypeCollection& boundProtData,
+                                std::string inputFileName);
+        bool hasLatticeProperty();
         void representModSat();
         void printRepresentation();
 
     protected:
 
     private:
-        string outputFileName;
+        std::string outputFileName;
+        enum ProcessingMode { Single, Multi };
         ProcessingMode processingMode;
 
-        vector<RegionalLinearPiece> pieces;
-        vector<BoundaryPrototype> boundaryPrototypes;
+        std::vector<RegionalLinearPiece> linearPieceCollection;
+        BoundaryPrototypeCollection boundaryPrototypeData;
         Formula latticeFormula;
 
         VariableManager var;
         bool modsatTranslation = false;
 
+        void setProcessingMode(ProcessingMode mode) { processingMode = mode; }
         void representPiecesModSat();
-        vector<Formula> partialPhiOmega(unsigned thread, unsigned compByThread);
+        std::vector<Formula> partialPhiOmega(unsigned thread, unsigned compByThread);
         void representLatticeFormula(unsigned maxThreadsNum);
 };
+}
 
 #endif // PIECEWISELINEARFUNCTION_H

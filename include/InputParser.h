@@ -7,31 +7,34 @@
 #include "LinearPiece.h"
 #include "PiecewiseLinearFunction.h"
 
-using namespace std;
-
-enum ExecutionMode { PWL, TL };
-
+namespace pwl2limodsat
+{
 class InputParser
 {
     public:
         InputParser(const char* iFN);
         virtual ~InputParser();
-
         ExecutionMode executionMode() { return mode; }
-
-        LinearPiece createTLInstance();
-        PiecewiseLinearFunction createPWLInstance();
+        LinearPieceData getTLInstanceData();
+        PiecewiseLinearFunctionData getPWLInstanceData();
+        BoundaryPrototypeCollection getPWLInstanceBoundProt();
 
     protected:
 
     private:
-        string inputFileName;
-        ifstream inputFile;
-        string currentLine;
+        std::string inputFileName;
+        std::ifstream inputFile;
+        std::string currentLine;
         ExecutionMode mode;
 
+        PiecewiseLinearFunctionData pwlInstanceData;
+        BoundaryPrototypeCollection pwlInstanceBoundProt;
+        bool pwlTranslation = false;
+
         void nextLine();
-        vector<LinearPieceCoefficient> readLinearPiece(unsigned beginingPosition);
+        LinearPieceData readLinearPiece(unsigned beginingPosition);
+        void buildPWLInstance();
 };
+}
 
 #endif // INPUTPARSER_H

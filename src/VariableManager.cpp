@@ -1,5 +1,7 @@
 #include "VariableManager.h"
 
+namespace pwl2limodsat
+{
 VariableManager::VariableManager(unsigned dim) :
     counter(dim) {}
 
@@ -38,7 +40,7 @@ Variable VariableManager::constant(unsigned denum)
 
 Variable VariableManager::newConstant(unsigned denum)
 {
-    constantsMap.insert(pair<unsigned,Variable>(denum,newVariable()));
+    constantsMap.insert(std::pair<unsigned,Variable>(denum,newVariable()));
     return currentVariable();
 }
 
@@ -56,7 +58,8 @@ Variable VariableManager::auxMultVariable(unsigned denum)
         return auxMultMap.find(denum)->second;
     else
     {
-        auxMultMap.insert(pair<unsigned,Variable>(denum,newVariable()));
+        auxMultMap.insert(std::pair<unsigned,Variable>(denum,newVariable()));
         return currentVariable();
     }
+}
 }

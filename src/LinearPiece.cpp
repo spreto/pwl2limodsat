@@ -1,15 +1,16 @@
 #include <cmath>
-
 #include "LinearPiece.h"
 
-LinearPiece::LinearPiece(const vector<LinearPieceCoefficient>& coefs, VariableManager *varMan) :
-    pieceCoefficients(coefs),
-    dim(pieceCoefficients.size()-1),
+namespace pwl2limodsat
+{
+LinearPiece::LinearPiece(const LinearPieceData& data, VariableManager *varMan) :
+    linearPieceData(data),
+    dim(linearPieceData.size()-1),
     var(varMan) {}
 
-LinearPiece::LinearPiece(const vector<LinearPieceCoefficient>& coefs, string inputFileName) :
-    pieceCoefficients(coefs),
-    dim(pieceCoefficients.size()-1)
+LinearPiece::LinearPiece(const LinearPieceData& data, std::string inputFileName) :
+    linearPieceData(data),
+    dim(linearPieceData.size()-1)
 {
     var = new VariableManager(dim);
     ownVariableManager = true;
@@ -19,7 +20,7 @@ LinearPiece::LinearPiece(const vector<LinearPieceCoefficient>& coefs, string inp
     else
         outputFileName = inputFileName;
 
-    outputFileName.append(".out");
+    outputFileName.append(".limodsat");
 }
 
 LinearPiece::~LinearPiece()
@@ -129,7 +130,7 @@ void LinearPiece::pwl2limodsat()
     bool allZeroCoefficients = true;
 
     for ( unsigned i = 0; i<=dim; i++ )
-        if ( pieceCoefficients[i].first != 0 )
+        if ( linearPieceData[i].first != 0 )
             allZeroCoefficients = false;
 
     if ( allZeroCoefficients )
@@ -142,22 +143,22 @@ void LinearPiece::pwl2limodsat()
     {
         enum Sign { P, N };
 
-        vector<unsigned> alphas, betas;
+        std::vector<unsigned> alphas, betas;
         double betaPositive = 0, betaNegative = 0;
-        vector<unsigned> indexes[2];
+        std::vector<unsigned> indexes[2];
 
         for ( unsigned i = 0; i <= dim; i++ )
         {
-            if ( pieceCoefficients[i].first >= 0 )
+            if ( linearPieceData[i].first >= 0 )
             {
-                alphas.push_back(pieceCoefficients[i].first);
-                betaPositive += (double) pieceCoefficients[i].first / (double) pieceCoefficients[i].second;
+                alphas.push_back(linearPieceData[i].first);
+                betaPositive += (double) linearPieceData[i].first / (double) linearPieceData[i].second;
                 indexes[P].push_back(i);
             }
             else
             {
-                alphas.push_back(-pieceCoefficients[i].first);
-                betaNegative += -((double) pieceCoefficients[i].first / (double) pieceCoefficients[i].second);
+                alphas.push_back(-linearPieceData[i].first);
+                betaNegative += -((double) linearPieceData[i].first / (double) linearPieceData[i].second);
                 indexes[N].push_back(i);
             }
         }
@@ -165,7 +166,7 @@ void LinearPiece::pwl2limodsat()
         unsigned beta = ceil(fmax(betaPositive, betaNegative));
 
         for ( unsigned i = 0; i <= dim; i++ )
-            betas.push_back(pieceCoefficients[i].second * beta);
+            betas.push_back(linearPieceData[i].second * beta);
 
         ModSat representation[2];
         ModSatSet msSetAux;
@@ -259,14 +260,14 @@ ModSat LinearPiece::getRepresentationModSat()
     return representationModSat;
 }
 
-void LinearPiece::printModSatSet(ofstream *output)
+void LinearPiece::printModSatSet(std::ofstream *output)
 {
     if ( !modsatTranslation )
         representModSat();
 
     for ( size_t i = 0; i < representationModSat.Phi.size(); i++ )
     {
-        *output << "Formula " << i+1 << ":" << endl;
+        *output << "Formula " << i+1 << ":" << std::endl;
         representationModSat.Phi.at(i).print(output);
     }
 }
@@ -276,14 +277,15 @@ void LinearPiece::printRepresentation()
     if ( !modsatTranslation )
         representModSat();
 
-    ofstream outputFile(outputFileName);
+    std::ofstream outputFile(outputFileName);
 
-    outputFile << "-= Formula phi =-" << endl << endl;
+    outputFile << "-= Formula phi =-" << std::endl << std::endl;
     representationModSat.phi.print(&outputFile);
 
-    outputFile << endl << "-= MODSAT Set Phi =-" << endl << endl;
+    outputFile << std::endl << "-= MODSAT Set Phi =-" << std::endl << std::endl;
 
     printModSatSet(&outputFile);
 
     outputFile.close();
+}
 }

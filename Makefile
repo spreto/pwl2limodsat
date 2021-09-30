@@ -15,7 +15,7 @@ INC =
 CFLAGS = -Wall -std=c++17 -fexceptions
 RESINC = 
 LIBDIR = 
-LIB = -lgmp -lz -lsoplex
+LIB = -lgmp -lz -lsoplex -lpthread
 LDFLAGS = 
 
 INC_RELEASE = $(INC) -Iinclude

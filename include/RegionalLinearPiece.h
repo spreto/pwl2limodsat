@@ -3,32 +3,27 @@
 
 #include "LinearPiece.h"
 
-enum BoundarySymbol { GeqZero, LeqZero };
-
-typedef pair<unsigned,BoundarySymbol> Boundary;
-typedef float BoundaryCoefficient;
-typedef vector<BoundaryCoefficient> BoundaryPrototype;
-
-enum Position { Above, Below };
-
+namespace pwl2limodsat
+{
 class RegionalLinearPiece : public LinearPiece
 {
     public:
-        RegionalLinearPiece(const vector<LinearPieceCoefficient>& coefs,
-                            const vector<Boundary>& bounds,
-                            const vector<BoundaryPrototype> *boundProts,
+        RegionalLinearPiece(const RegionalLinearPieceData& rlpData,
+                            const BoundaryPrototypeCollection *bpData,
                             VariableManager *varMan);
-        bool isAbove(const RegionalLinearPiece& comparedRLP);
-        bool isBelow(const RegionalLinearPiece& comparedRLP);
-        vector<LinearPieceCoefficient> getPieceCoefficients() const { return pieceCoefficients; }
+        bool comparedIsAbove(const RegionalLinearPiece& comparedRLP);
+        bool comparedIsBelow(const RegionalLinearPiece& comparedRLP);
+        LinearPieceData getLinearPieceData() const { return linearPieceData; }
 
     protected:
 
     private:
-        vector<Boundary> boundaries;
-        const vector<BoundaryPrototype> *boundaryPrototypes;
+        BoundaryCollection boundaryData;
+        const BoundaryPrototypeCollection *boundaryPrototypeData;
+        enum Position { ComparedIsAbove, ComparedIsBelow };
 
         bool position(Position pos, const RegionalLinearPiece& comparedRLP);
 };
+}
 
 #endif // REGIONALLINEARPIECE_H

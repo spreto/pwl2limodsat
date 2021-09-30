@@ -23,7 +23,7 @@ Formula::Formula(const Formula& form, LogicalSymbol unSym) :
     if ( unSym == Neg )
         this->negateFormula();
     else
-        throw invalid_argument("Not a valid logic operation.");
+        throw std::invalid_argument("Not a valid logic operation.");
 }
 
 Formula::Formula(const Formula& form1, const Formula& form2, LogicalSymbol binSym) :
@@ -40,7 +40,7 @@ Formula::Formula(const Formula& form1, const Formula& form2, LogicalSymbol binSy
     else if ( binSym == Min )
         this->addMinimum(form2);
     else
-        throw invalid_argument("Not a valid logic operation.");
+        throw std::invalid_argument("Not a valid logic operation.");
 }
 
 void Formula::negateFormula()
@@ -61,29 +61,34 @@ void Formula::addUnits(const Formula& form)
                             form.getNegations().at(i).second + unitCounter));
 
     for ( size_t i = 0; i < form.getLDisjunctions().size(); i++ )
-        lDisjunctions.push_back(LDisjunction(get<0>(form.getLDisjunctions().at(i)) + unitCounter,
-                                get<1>(form.getLDisjunctions().at(i)) + unitCounter, get<2>(form.getLDisjunctions()[i]) + unitCounter));
+        lDisjunctions.push_back( LDisjunction(std::get<0>(form.getLDisjunctions().at(i)) + unitCounter,
+                                              std::get<1>(form.getLDisjunctions().at(i)) + unitCounter,
+                                              std::get<2>(form.getLDisjunctions()[i]) + unitCounter) );
 
     for ( size_t i = 0; i < form.getEquivalences().size(); i++ )
-        equivalences.push_back(Equivalence(get<0>(form.getEquivalences().at(i)) + unitCounter,
-                               get<1>(form.getEquivalences().at(i)) + unitCounter, get<2>(form.getEquivalences()[i]) + unitCounter));
+        equivalences.push_back( Equivalence(std::get<0>(form.getEquivalences().at(i)) + unitCounter,
+                                            std::get<1>(form.getEquivalences().at(i)) + unitCounter,
+                                            std::get<2>(form.getEquivalences()[i]) + unitCounter) );
 
     for ( size_t i = 0; i < form.getImplications().size(); i++ )
-        implications.push_back(Implication(get<0>(form.getImplications().at(i)) + unitCounter,
-                               get<1>(form.getImplications().at(i)) + unitCounter, get<2>(form.getImplications()[i]) + unitCounter));
+        implications.push_back( Implication(std::get<0>(form.getImplications().at(i)) + unitCounter,
+                                            std::get<1>(form.getImplications().at(i)) + unitCounter,
+                                            std::get<2>(form.getImplications()[i]) + unitCounter) );
 
     for ( size_t i = 0; i < form.getMaximums().size(); i++ )
-        maximums.push_back(Maximum(get<0>(form.getMaximums().at(i)) + unitCounter,
-                               get<1>(form.getMaximums().at(i)) + unitCounter, get<2>(form.getMaximums()[i]) + unitCounter));
+        maximums.push_back( Maximum(std::get<0>(form.getMaximums().at(i)) + unitCounter,
+                                    std::get<1>(form.getMaximums().at(i)) + unitCounter,
+                                    std::get<2>(form.getMaximums()[i]) + unitCounter) );
 
     for ( size_t i = 0; i < form.getMinimums().size(); i++ )
-        minimums.push_back(Minimum(get<0>(form.getMinimums().at(i)) + unitCounter,
-                               get<1>(form.getMinimums().at(i)) + unitCounter, get<2>(form.getMinimums()[i]) + unitCounter));
+        minimums.push_back( Minimum(std::get<0>(form.getMinimums().at(i)) + unitCounter,
+                                    std::get<1>(form.getMinimums().at(i)) + unitCounter,
+                                    std::get<2>(form.getMinimums()[i]) + unitCounter) );
 }
 
 void Formula::addBinaryOperation(const Formula& form, LogicalSymbol binSym)
 {
-    vector<BinaryOperation> *binOp;
+    std::vector<BinaryOperation> *binOp;
 
     if ( binSym == Lor )
         binOp = &lDisjunctions;
@@ -96,7 +101,7 @@ void Formula::addBinaryOperation(const Formula& form, LogicalSymbol binSym)
     else if ( binSym == Min )
         binOp = &minimums;
     else
-        throw invalid_argument("Not a valid logic operation.");
+        throw std::invalid_argument("Not a valid logic operation.");
 
     addUnits(form);
 
@@ -140,7 +145,7 @@ void Formula::addMinimum(const Formula& form)
     addBinaryOperation(form,Min);
 }
 
-void Formula::print(ofstream *output)
+void Formula::print(std::ofstream *output)
 {
     unsigned unitClausesCounter = 0;
     unsigned negationsCounter = 0;
@@ -156,42 +161,54 @@ void Formula::print(ofstream *output)
             *output << "Unit " << i << " :: Clause      :: ";
             for ( size_t j = 0; j < unitClauses.at(unitClausesCounter).second.size(); j++ )
                 *output << unitClauses.at(unitClausesCounter).second.at(j) << " ";
-            *output << endl;
+            *output << std::endl;
 
             unitClausesCounter++;
         }
         else if ( (negationsCounter < negations.size()) && (negations.at(negationsCounter).first == i) )
         {
             *output << "Unit " << i << " :: Negation    :: ";
-            *output << negations.at(negationsCounter).second << endl;
+            *output << negations.at(negationsCounter).second << std::endl;
 
             negationsCounter++;
         }
-        else if ( (equivalencesCounter < equivalences.size()) && (get<0>(equivalences.at(equivalencesCounter)) == i) )
+        else if ( (equivalencesCounter < equivalences.size()) && (std::get<0>(equivalences.at(equivalencesCounter)) == i) )
         {
             *output << "Unit " << i << " :: Equivalence :: ";
-            *output << get<1>(equivalences.at(equivalencesCounter)) << " " << get<2>(equivalences.at(equivalencesCounter)) << endl;
+            *output << std::get<1>(equivalences.at(equivalencesCounter))
+                    << " "
+                    << std::get<2>(equivalences.at(equivalencesCounter))
+                    << std::endl;
 
             equivalencesCounter++;
         }
-        else if ( (implicationsCounter < implications.size()) && (get<0>(implications.at(implicationsCounter)) == i) )
+        else if ( (implicationsCounter < implications.size()) && (std::get<0>(implications.at(implicationsCounter)) == i) )
         {
             *output << "Unit " << i << " :: Implication :: ";
-            *output << get<1>(implications.at(implicationsCounter)) << " " << get<2>(implications.at(implicationsCounter)) << endl;
+            *output << std::get<1>(implications.at(implicationsCounter))
+                    << " "
+                    << std::get<2>(implications.at(implicationsCounter))
+                    << std::endl;
 
             implicationsCounter++;
         }
-        else if ( (maximumsCounter < maximums.size()) && (get<0>(maximums.at(maximumsCounter)) == i) )
+        else if ( (maximumsCounter < maximums.size()) && (std::get<0>(maximums.at(maximumsCounter)) == i) )
         {
             *output << "Unit " << i << " :: Maximum     :: ";
-            *output << get<1>(maximums.at(maximumsCounter)) << " " << get<2>(maximums.at(maximumsCounter)) << endl;
+            *output << std::get<1>(maximums.at(maximumsCounter))
+                    << " "
+                    << std::get<2>(maximums.at(maximumsCounter))
+                    << std::endl;
 
             maximumsCounter++;
         }
-        else if ( (minimumsCounter < minimums.size()) && (get<0>(minimums.at(minimumsCounter)) == i) )
+        else if ( (minimumsCounter < minimums.size()) && (std::get<0>(minimums.at(minimumsCounter)) == i) )
         {
             *output << "Unit " << i << " :: Minimum     :: ";
-            *output << get<1>(minimums.at(minimumsCounter)) << " " << get<2>(minimums.at(minimumsCounter)) << endl;
+            *output << std::get<1>(minimums.at(minimumsCounter))
+                    << " "
+                    << std::get<2>(minimums.at(minimumsCounter))
+                    << std::endl;
 
             minimumsCounter++;
         }

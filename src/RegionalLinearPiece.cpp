@@ -13,7 +13,7 @@ RegionalLinearPiece::RegionalLinearPiece(const RegionalLinearPieceData& rlpData,
     boundaryData(rlpData.bound),
     boundaryPrototypeData(bpData) {}
 
-bool RegionalLinearPiece::position(Position pos, const RegionalLinearPiece& comparedRLP)
+bool RegionalLinearPiece::position(Position pos, const RegionalLinearPiece& comparedRlp)
 {
     std::vector<float> objFunc;
 
@@ -21,12 +21,12 @@ bool RegionalLinearPiece::position(Position pos, const RegionalLinearPiece& comp
         for ( unsigned i = 0; i <= dim; i++ )
             objFunc.push_back( ( (float) linearPieceData.at(i).first /
                                  (float) linearPieceData.at(i).second ) -
-                               ( (float) comparedRLP.getLinearPieceData().at(i).first /
-                                 (float) comparedRLP.getLinearPieceData().at(i).second ) );
+                               ( (float) comparedRlp.getLinearPieceData().at(i).first /
+                                 (float) comparedRlp.getLinearPieceData().at(i).second ) );
     else if ( pos == ComparedIsBelow )
         for ( unsigned i = 0; i <= dim; i++ )
-            objFunc.push_back( ( (float) comparedRLP.getLinearPieceData().at(i).first /
-                                 (float) comparedRLP.getLinearPieceData().at(i).second ) -
+            objFunc.push_back( ( (float) comparedRlp.getLinearPieceData().at(i).first /
+                                 (float) comparedRlp.getLinearPieceData().at(i).second ) -
                                ( (float) linearPieceData.at(i).first /
                                  (float) linearPieceData.at(i).second ) );
 
@@ -63,13 +63,13 @@ bool RegionalLinearPiece::position(Position pos, const RegionalLinearPiece& comp
         return false;
 }
 
-bool RegionalLinearPiece::comparedIsAbove(const RegionalLinearPiece& comparedRLP)
+bool RegionalLinearPiece::comparedIsAbove(const RegionalLinearPiece& comparedRlp)
 {
-    return position(ComparedIsAbove, comparedRLP);
+    return position(ComparedIsAbove, comparedRlp);
 }
 
-bool RegionalLinearPiece::comparedIsBelow(const RegionalLinearPiece& comparedRLP)
+bool RegionalLinearPiece::comparedIsBelow(const RegionalLinearPiece& comparedRlp)
 {
-    return position(ComparedIsBelow, comparedRLP);
+    return position(ComparedIsBelow, comparedRlp);
 }
 }

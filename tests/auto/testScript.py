@@ -39,7 +39,7 @@ pwl_test = []
 # 1: normalized random linear
 # 2: simple region piecewise linear
 # 3: cubic region piecewise linear
-TEST_TYPE = 1
+TEST_TYPE = 2
 MAXDIMENSIONSTHREADING = 1
 
 NUMEVALUATIONS = 100
@@ -47,9 +47,9 @@ DECPRECISION = 6
 DECPRECISION_form = ".6f"
 
 # Used for types 0 and 1
-MAXDIMENSION = 50
-NUMTESTSBYCONFIG = 100
-MAXINTEGER = 100
+# MAXDIMENSION = 50
+# NUMTESTSBYCONFIG = 100
+# MAXINTEGER = 100
 
 # Used for type 2
 # MAXDIMENSION = 50
@@ -62,6 +62,11 @@ MAXINTEGER = 100
 # NUMTESTSBYCONFIG = 30
 # MAXINTEGER = 30
 # MAXREGIONALPARAM = 7
+
+MAXDIMENSION = 5
+NUMTESTSBYCONFIG = 3
+MAXINTEGER = 10
+MAXREGIONALPARAM = 3
 
 #   create tl instance   ##############################################################################################
 #######################################################################################################################

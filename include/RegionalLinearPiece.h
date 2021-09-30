@@ -11,8 +11,8 @@ class RegionalLinearPiece : public LinearPiece
         RegionalLinearPiece(const RegionalLinearPieceData& rlpData,
                             const BoundaryPrototypeCollection *bpData,
                             VariableManager *varMan);
-        bool comparedIsAbove(const RegionalLinearPiece& comparedRLP);
-        bool comparedIsBelow(const RegionalLinearPiece& comparedRLP);
+        bool comparedIsAbove(const RegionalLinearPiece& comparedRlp);
+        bool comparedIsBelow(const RegionalLinearPiece& comparedRlp);
         LinearPieceData getLinearPieceData() const { return linearPieceData; }
 
     protected:
@@ -22,7 +22,7 @@ class RegionalLinearPiece : public LinearPiece
         const BoundaryPrototypeCollection *boundaryPrototypeData;
         enum Position { ComparedIsAbove, ComparedIsBelow };
 
-        bool position(Position pos, const RegionalLinearPiece& comparedRLP);
+        bool position(Position pos, const RegionalLinearPiece& comparedRlp);
 };
 }
 

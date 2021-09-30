@@ -15,9 +15,9 @@ class InputParser
         InputParser(const char* iFN);
         virtual ~InputParser();
         ExecutionMode executionMode() { return mode; }
-        LinearPieceData getTLInstanceData();
-        PiecewiseLinearFunctionData getPWLInstanceData();
-        BoundaryPrototypeCollection getPWLInstanceBoundProt();
+        LinearPieceData getTlInstanceData();
+        PiecewiseLinearFunctionData getPwlInstanceData();
+        BoundaryPrototypeCollection getPwlInstanceBoundProt();
 
     protected:
 
@@ -27,8 +27,8 @@ class InputParser
         std::string currentLine;
         ExecutionMode mode;
 
-        PiecewiseLinearFunctionData pwlInstanceData;
-        BoundaryPrototypeCollection pwlInstanceBoundProt;
+        PiecewiseLinearFunctionData pwlData;
+        BoundaryPrototypeCollection boundaryPrototypeData;
         bool pwlTranslation = false;
 
         void nextLine();

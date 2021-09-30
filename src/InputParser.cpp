@@ -71,16 +71,13 @@ LinearPieceData InputParser::readLinearPiece(unsigned beginingPosition)
     return lpData;
 }
 
-LinearPieceData InputParser::getTLInstanceData()
+LinearPieceData InputParser::getTlInstanceData()
 {
     return readLinearPiece(3);
 }
 
 void InputParser::buildPWLInstance()
 {
-    BoundaryPrototypeCollection boundProtCollection;
-    PiecewiseLinearFunctionData pwlData;
-
     BoundaryPrototype boundProt;
     LinearPieceData lpData;
     BoundaryCollection boundaryCollection;
@@ -106,7 +103,7 @@ void InputParser::buildPWLInstance()
                     boundProt.push_back(stof(currentLine.substr(beginPosition, endPosition-beginPosition)));
             } while ( endPosition < currentLine.size() );
 
-            boundProtCollection.push_back(boundProt);
+            boundaryPrototypeData.push_back(boundProt);
             boundProt.clear();
             boundaryCounter++;
             beginPosition = 0;
@@ -147,35 +144,32 @@ void InputParser::buildPWLInstance()
             throw std::invalid_argument("Not in standard pwl file format.");
     }
 
-    unsigned dim = boundProtCollection.at(0).size();
+    unsigned dim = boundaryPrototypeData.at(0).size();
 
-    for ( size_t i = 1; i < boundProtCollection.size(); i++ )
-        if ( boundProtCollection.at(i).size() != dim )
+    for ( size_t i = 1; i < boundaryPrototypeData.size(); i++ )
+        if ( boundaryPrototypeData.at(i).size() != dim )
             throw std::invalid_argument("Dimension inconsistency.");
 
     for ( size_t i = 0; i < pwlData.size(); i++ )
         if ( pwlData.at(i).lpData.size() != dim )
             throw std::invalid_argument("Dimension inconsistency.");
 
-    pwlInstanceData = pwlData;
-    pwlInstanceBoundProt = boundProtCollection;
-
     pwlTranslation = true;
 }
 
-PiecewiseLinearFunctionData InputParser::getPWLInstanceData()
+PiecewiseLinearFunctionData InputParser::getPwlInstanceData()
 {
     if ( !pwlTranslation )
         buildPWLInstance();
 
-    return pwlInstanceData;
+    return pwlData;
 }
 
-BoundaryPrototypeCollection InputParser::getPWLInstanceBoundProt()
+BoundaryPrototypeCollection InputParser::getPwlInstanceBoundProt()
 {
     if ( !pwlTranslation )
         buildPWLInstance();
 
-    return pwlInstanceBoundProt;
+    return boundaryPrototypeData;
 }
 }

@@ -9,7 +9,7 @@ int main(int argc, char **argv)
 
     if ( parser.executionMode() == pwl2limodsat::TL )
     {
-        pwl2limodsat::LinearPiece instance(parser.getTLInstanceData(),argv[1]);
+        pwl2limodsat::LinearPiece instance(parser.getTlInstanceData(),argv[1]);
         std::cout << "Truncated Linear Function instantiated." << std::endl;
         std::cout << "Building representation... ";
         instance.printRepresentation();
@@ -17,7 +17,7 @@ int main(int argc, char **argv)
     }
     else if ( parser.executionMode() == pwl2limodsat::PWL )
     {
-        pwl2limodsat::PiecewiseLinearFunction instance(parser.getPWLInstanceData(),parser.getPWLInstanceBoundProt(),argv[1]);
+        pwl2limodsat::PiecewiseLinearFunction instance(parser.getPwlInstanceData(),parser.getPwlInstanceBoundProt(),argv[1]);
         std::cout << "Piecewise Linear Function instantiated." << std::endl;
         std::cout << "Building representation... ";
         instance.printRepresentation();

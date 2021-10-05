@@ -2,6 +2,8 @@
 
 #include "Formula.h"
 
+namespace lukaFormula
+{
 Formula::Formula() {}
 
 Formula::Formula(const Clause& clau)
@@ -14,7 +16,7 @@ Formula::Formula(Literal lit)
     unitClauses.push_back(UnitClause(++unitCounter, Clause(1,lit)));
 }
 
-Formula::Formula(Variable var) :
+Formula::Formula(pwl2limodsat::Variable var) :
     Formula((Literal) var) {}
 
 Formula::Formula(const Formula& form, LogicalSymbol unSym) :
@@ -213,4 +215,5 @@ void Formula::print(std::ofstream *output)
             minimumsCounter++;
         }
     }
+}
 }

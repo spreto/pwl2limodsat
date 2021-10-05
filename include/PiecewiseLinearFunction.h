@@ -16,8 +16,8 @@ class PiecewiseLinearFunction
                                 const BoundaryPrototypeCollection& boundProtData,
                                 std::string inputFileName);
         bool hasLatticeProperty();
-        void representModSat();
-        void printRepresentation();
+        void representModsat();
+        void printLimodsatFile();
 
     protected:
 

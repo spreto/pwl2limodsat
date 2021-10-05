@@ -57,7 +57,7 @@ bool PiecewiseLinearFunction::hasLatticeProperty()
 void PiecewiseLinearFunction::representPiecesModSat()
 {
     for ( size_t i = 0; i < linearPieceCollection.size(); i++ )
-        linearPieceCollection.at(i).representModSat();
+        linearPieceCollection.at(i).representModsat();
 }
 
 std::vector<Formula> PiecewiseLinearFunction::partialPhiOmega(unsigned thread, unsigned compByThread)
@@ -66,12 +66,12 @@ std::vector<Formula> PiecewiseLinearFunction::partialPhiOmega(unsigned thread, u
 
     for ( size_t i = thread * compByThread; i < (thread + 1) * compByThread; i++ )
     {
-        partPhiOmega.push_back( linearPieceCollection.at(i).getRepresentationModSat().phi );
+        partPhiOmega.push_back( linearPieceCollection.at(i).getRepresentationModsat().phi );
 
         for ( size_t k = 0; k < linearPieceCollection.size(); k++ )
             if ( k != i )
                 if ( linearPieceCollection.at(i).comparedIsAbove(linearPieceCollection.at(k)) )
-                    partPhiOmega.back().addMinimum(linearPieceCollection.at(k).getRepresentationModSat().phi);
+                    partPhiOmega.back().addMinimum(linearPieceCollection.at(k).getRepresentationModsat().phi);
     }
 
     return partPhiOmega;
@@ -89,12 +89,12 @@ void PiecewiseLinearFunction::representLatticeFormula(unsigned maxThreadsNum)
     std::vector<Formula> phiOmegaFirst;
     for ( size_t i = (threadsNum - 1) * compByThread; i < linearPieceCollection.size(); i++ )
     {
-        phiOmegaFirst.push_back( linearPieceCollection.at(i).getRepresentationModSat().phi );
+        phiOmegaFirst.push_back( linearPieceCollection.at(i).getRepresentationModsat().phi );
 
         for ( size_t k = 0; k < linearPieceCollection.size(); k++ )
             if ( k != i )
                 if ( linearPieceCollection.at(i).comparedIsAbove(linearPieceCollection.at(k)) )
-                    phiOmegaFirst.back().addMinimum(linearPieceCollection.at(k).getRepresentationModSat().phi);
+                    phiOmegaFirst.back().addMinimum(linearPieceCollection.at(k).getRepresentationModsat().phi);
     }
 
     latticeFormula = phiOmegaFirst.at(0);
@@ -110,7 +110,7 @@ void PiecewiseLinearFunction::representLatticeFormula(unsigned maxThreadsNum)
     }
 }
 
-void PiecewiseLinearFunction::representModSat()
+void PiecewiseLinearFunction::representModsat()
 {
     representPiecesModSat();
 
@@ -122,10 +122,10 @@ void PiecewiseLinearFunction::representModSat()
     modsatTranslation = true;
 }
 
-void PiecewiseLinearFunction::printRepresentation()
+void PiecewiseLinearFunction::printLimodsatFile()
 {
     if ( !modsatTranslation )
-        representModSat();
+        representModsat();
 
     std::ofstream outputFile(outputFileName);
 
@@ -137,7 +137,7 @@ void PiecewiseLinearFunction::printRepresentation()
     for ( size_t i = 0; i < linearPieceCollection.size(); i++ )
     {
         outputFile << std::endl << "-= Linear Piece " << i+1 << " =-" << std::endl;
-        linearPieceCollection.at(i).printModSatSet(&outputFile);
+        linearPieceCollection.at(i).printModsatSet(&outputFile);
     }
 }
 }

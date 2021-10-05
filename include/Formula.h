@@ -4,21 +4,24 @@
 #include <vector>
 #include <tuple>
 #include <fstream>
+#include "pwl2limodsat.h"
 
+namespace lukaFormula
+{
 enum LogicalSymbol { Neg, Lor, Equiv, Impl, Max, Min };
 
 typedef int Literal;
-typedef std::vector<Literal> Clause;
-typedef std::pair<unsigned,Clause> UnitClause;
-typedef std::pair<unsigned,unsigned> Negation;
-typedef std::tuple<unsigned,unsigned,unsigned> BinaryOperation;
-typedef std::tuple<unsigned,unsigned,unsigned> LDisjunction;
-typedef std::tuple<unsigned,unsigned,unsigned> Equivalence;
-typedef std::tuple<unsigned,unsigned,unsigned> Implication;
-typedef std::tuple<unsigned,unsigned,unsigned> Maximum;
-typedef std::tuple<unsigned,unsigned,unsigned> Minimum;
+typedef unsigned UnitClauseIndex;
 
-typedef unsigned Variable;
+typedef std::vector<Literal> Clause;
+typedef std::pair<UnitClauseIndex,Clause> UnitClause;
+typedef std::pair<UnitClauseIndex,UnitClauseIndex> Negation;
+typedef std::tuple<UnitClauseIndex,UnitClauseIndex,UnitClauseIndex> BinaryOperation;
+typedef std::tuple<UnitClauseIndex,UnitClauseIndex,UnitClauseIndex> LDisjunction;
+typedef std::tuple<UnitClauseIndex,UnitClauseIndex,UnitClauseIndex> Equivalence;
+typedef std::tuple<UnitClauseIndex,UnitClauseIndex,UnitClauseIndex> Implication;
+typedef std::tuple<UnitClauseIndex,UnitClauseIndex,UnitClauseIndex> Maximum;
+typedef std::tuple<UnitClauseIndex,UnitClauseIndex,UnitClauseIndex> Minimum;
 
 class Formula
 {
@@ -26,7 +29,7 @@ class Formula
         Formula();
         Formula(const Clause& clau);
         Formula(Literal lit);
-        Formula(Variable var);
+        Formula(pwl2limodsat::Variable var);
 
         Formula(const Formula& form, LogicalSymbol unSym);
         Formula(const Formula& form1, const Formula& form2, LogicalSymbol binSym);
@@ -63,12 +66,13 @@ class Formula
         void addBinaryOperation(const Formula& form, LogicalSymbol binSym);
 };
 
-typedef std::vector<Formula> ModSatSet;
+typedef std::vector<Formula> ModsatSet;
 
-struct ModSat
+struct Modsat
 {
     Formula phi;
-    ModSatSet Phi;
+    ModsatSet Phi;
 };
+}
 
 #endif // FORMULA_H

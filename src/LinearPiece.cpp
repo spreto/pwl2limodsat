@@ -35,9 +35,9 @@ Formula LinearPiece::zeroFormula()
     return Formula( Formula(zeroClau), Neg );
 }
 
-template<class T> ModSat LinearPiece::binaryModSat(unsigned n, const T& logTerm)
+template<class T> Modsat LinearPiece::binaryModsat(unsigned n, const T& logTerm)
 {
-    ModSat binMS;
+    Modsat binMS;
 
     if ( n == 0 )
     {
@@ -72,21 +72,21 @@ template<class T> ModSat LinearPiece::binaryModSat(unsigned n, const T& logTerm)
 
 // Define modsat a constant of type 1/denum by a propositional variable.
 // It is enough to run once for each constant and then ask the variable manager for future use.
-ModSatSet LinearPiece::defineConstant(unsigned denum)
+ModsatSet LinearPiece::defineConstant(unsigned denum)
 {
-    ModSat msAux = binaryModSat(denum-1, var->newConstant(denum));
+    Modsat msAux = binaryModsat(denum-1, var->newConstant(denum));
     msAux.Phi.push_back(Formula(var->constant(denum), Formula(msAux.phi,Neg), Equiv));
     return msAux.Phi;
 }
 
 // Multiply by num _already defined_ constant 1/denum in order to refer to value of fraction num/denum.
 // num must have at most the same number of bits as denum-1 OR num == denum
-ModSat LinearPiece::multiplyConstant(unsigned num, unsigned denum)
+Modsat LinearPiece::multiplyConstant(unsigned num, unsigned denum)
 {
-    ModSat frac;
+    Modsat frac;
 
     if ( denum <= 2 )
-        frac = binaryModSat(num, var->constant(denum));
+        frac = binaryModsat(num, var->constant(denum));
     else if ( ilogb(num) <= ilogb(denum-1) )
     {
         for ( int i = 0; i <= ilogb(num); i++ )
@@ -135,9 +135,9 @@ void LinearPiece::pwl2limodsat()
 
     if ( allZeroCoefficients )
     {
-        ModSat zeroRepresentation;
+        Modsat zeroRepresentation;
         zeroRepresentation.phi = zeroFormula();
-        representationModSat = zeroRepresentation;
+        representationModsat = zeroRepresentation;
     }
     else
     {
@@ -168,9 +168,9 @@ void LinearPiece::pwl2limodsat()
         for ( unsigned i = 0; i <= dim; i++ )
             betas.push_back(linearPieceData[i].second * beta);
 
-        ModSat representation[2];
-        ModSatSet msSetAux;
-        ModSat msAux;
+        Modsat representation[2];
+        ModsatSet msSetAux;
+        Modsat msAux;
 
         for ( Sign J : { P, N } )
         {
@@ -210,7 +210,7 @@ void LinearPiece::pwl2limodsat()
                         unsigned Min = fmin(alphas.at(indexes[J].at(j)), betas.at(indexes[J].at(j)));
 
                         Variable auxVar = var->newVariable();
-                        msAux = binaryModSat(Max, auxVar);
+                        msAux = binaryModsat(Max, auxVar);
                         representation[J].Phi.insert(representation[J].Phi.end(), msAux.Phi.begin(), msAux.Phi.end());
 
                         if ( alphas.at(indexes[J].at(j)) == betas.at(indexes[J].at(j)) )
@@ -235,16 +235,16 @@ void LinearPiece::pwl2limodsat()
             }
         }
 
-        msAux = binaryModSat(beta, Formula(Formula(representation[P].phi, representation[N].phi, Impl), Neg));
+        msAux = binaryModsat(beta, Formula(Formula(representation[P].phi, representation[N].phi, Impl), Neg));
 
-        representationModSat.phi = msAux.phi;
-        representationModSat.Phi = representation[P].Phi;
-        representationModSat.Phi.insert(representationModSat.Phi.end(), representation[N].Phi.begin(), representation[N].Phi.end());
-        representationModSat.Phi.insert(representationModSat.Phi.end(), msAux.Phi.begin(), msAux.Phi.end());
+        representationModsat.phi = msAux.phi;
+        representationModsat.Phi = representation[P].Phi;
+        representationModsat.Phi.insert(representationModsat.Phi.end(), representation[N].Phi.begin(), representation[N].Phi.end());
+        representationModsat.Phi.insert(representationModsat.Phi.end(), msAux.Phi.begin(), msAux.Phi.end());
     }
 }
 
-void LinearPiece::representModSat()
+void LinearPiece::representModsat()
 {
     if ( !modsatTranslation )
         pwl2limodsat();
@@ -252,39 +252,39 @@ void LinearPiece::representModSat()
     modsatTranslation = true;
 }
 
-ModSat LinearPiece::getRepresentationModSat()
+Modsat LinearPiece::getRepresentationModsat()
 {
     if ( !modsatTranslation )
-        representModSat();
+        representModsat();
 
-    return representationModSat;
+    return representationModsat;
 }
 
-void LinearPiece::printModSatSet(std::ofstream *output)
+void LinearPiece::printModsatSet(std::ofstream *output)
 {
     if ( !modsatTranslation )
-        representModSat();
+        representModsat();
 
-    for ( size_t i = 0; i < representationModSat.Phi.size(); i++ )
+    for ( size_t i = 0; i < representationModsat.Phi.size(); i++ )
     {
         *output << "Formula " << i+1 << ":" << std::endl;
-        representationModSat.Phi.at(i).print(output);
+        representationModsat.Phi.at(i).print(output);
     }
 }
 
-void LinearPiece::printRepresentation()
+void LinearPiece::printLimodsatFile()
 {
     if ( !modsatTranslation )
-        representModSat();
+        representModsat();
 
     std::ofstream outputFile(outputFileName);
 
     outputFile << "-= Formula phi =-" << std::endl << std::endl;
-    representationModSat.phi.print(&outputFile);
+    representationModsat.phi.print(&outputFile);
 
     outputFile << std::endl << "-= MODSAT Set Phi =-" << std::endl << std::endl;
 
-    printModSatSet(&outputFile);
+    printModsatSet(&outputFile);
 
     outputFile.close();
 }

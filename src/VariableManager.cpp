@@ -3,7 +3,19 @@
 namespace pwl2limodsat
 {
 VariableManager::VariableManager(unsigned dim) :
-    counter(dim) {}
+    counter(dim)
+{
+    counterInitialized = true;
+}
+
+void VariableManager::setDimension(unsigned dim)
+{
+    if ( !counterInitialized )
+    {
+        counter = dim;
+        counterInitialized = true;
+    }
+}
 
 unsigned VariableManager::currentVariable()
 {

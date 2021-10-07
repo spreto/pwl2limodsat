@@ -29,19 +29,24 @@ LinearPiece::~LinearPiece()
         delete var;
 }
 
-Formula LinearPiece::zeroFormula()
+Formula LinearPiece::zeroFormula(VariableManager *var)
 {
     Clause zeroClau = { -(Literal) var->zeroVariable(), (Literal) var->zeroVariable() };
     return Formula( Formula(zeroClau), Neg );
 }
 
-template<class T> Modsat LinearPiece::binaryModsat(unsigned n, const T& logTerm)
+Formula LinearPiece::zeroFormula()
+{
+    return zeroFormula(var);
+}
+
+template<class T> Modsat LinearPiece::binaryModsat(VariableManager *var, unsigned n, const T& logTerm)
 {
     Modsat binMS;
 
     if ( n == 0 )
     {
-        binMS.phi = zeroFormula();
+        binMS.phi = zeroFormula(var);
         return binMS;
     }
     else if ( n == 1 )
@@ -70,23 +75,33 @@ template<class T> Modsat LinearPiece::binaryModsat(unsigned n, const T& logTerm)
     }
 }
 
-// Define modsat a constant of type 1/denum by a propositional variable.
-// It is enough to run once for each constant and then ask the variable manager for future use.
-ModsatSet LinearPiece::defineConstant(unsigned denum)
+template<class T> Modsat LinearPiece::binaryModsat(unsigned n, const T& logTerm)
 {
-    Modsat msAux = binaryModsat(denum-1, var->newConstant(denum));
+    return binaryModsat(var, n, logTerm);
+}
+
+// Define a constant of type 1/denum by a propositional variable modsat.
+// It is enough to run once for each constant and then ask the variable manager for future use.
+ModsatSet LinearPiece::defineConstant(VariableManager *var, unsigned denum)
+{
+    Modsat msAux = binaryModsat(var, denum-1, var->newConstant(denum));
     msAux.Phi.push_back(Formula(var->constant(denum), Formula(msAux.phi,Neg), Equiv));
     return msAux.Phi;
 }
 
-// Multiply by num _already defined_ constant 1/denum in order to refer to value of fraction num/denum.
+ModsatSet LinearPiece::defineConstant(unsigned denum)
+{
+    return defineConstant(var, denum);
+}
+
+// Multiply an _already defined_ constant 1/denum by num in order to refer to the value of the fraction num/denum.
 // num must have at most the same number of bits as denum-1 OR num == denum
-Modsat LinearPiece::multiplyConstant(unsigned num, unsigned denum)
+Modsat LinearPiece::multiplyConstant(VariableManager *var, unsigned num, unsigned denum)
 {
     Modsat frac;
 
     if ( denum <= 2 )
-        frac = binaryModsat(num, var->constant(denum));
+        frac = binaryModsat(var, num, var->constant(denum));
     else if ( ilogb(num) <= ilogb(denum-1) )
     {
         for ( int i = 0; i <= ilogb(num); i++ )
@@ -96,12 +111,19 @@ Modsat LinearPiece::multiplyConstant(unsigned num, unsigned denum)
     else if ( num == denum )
     {
         if ( !var->isThereAuxMultVariable(denum) )
-            frac.Phi.push_back(Formula(Formula(var->auxMultVariable(denum)), Formula(Clause(2,var->constant(denum)+ilogb(num))), Equiv));
+            frac.Phi.push_back( Formula(Formula(var->auxMultVariable(denum)),
+                                Formula(Clause(2,var->constant(denum)+ilogb(num))),
+                                Equiv) );
 
         frac.phi = Formula(var->auxMultVariable(denum));
     }
 
     return frac;
+}
+
+Modsat LinearPiece::multiplyConstant(unsigned num, unsigned denum)
+{
+    return multiplyConstant(var, num, denum);
 }
 
 // Multiply a propositional variable for the second time.
@@ -226,10 +248,14 @@ void LinearPiece::pwl2limodsat()
                         else
                         {
                             representation[J].phi.addLukaDisjunction(msAux.phi);
-                            representation[J].Phi.push_back(Formula(variableSecondMultiplication(Min,auxVar), Formula(indexes[J].at(j)), Equiv));
+                            representation[J].Phi.push_back( Formula(variableSecondMultiplication(Min,auxVar),
+                                                                     Formula(indexes[J].at(j)),
+                                                                     Equiv) );
                         }
 
-                        representation[J].Phi.push_back(Formula(Formula(auxVar), Formula(var->constant(betas.at(indexes[J].at(j)))), Impl));
+                        representation[J].Phi.push_back( Formula(Formula(auxVar),
+                                                                 Formula(var->constant(betas.at(indexes[J].at(j)))),
+                                                                 Impl) );
                     }
                 }
             }

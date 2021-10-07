@@ -23,6 +23,11 @@ class LinearPiece
         void printModsatSet(std::ofstream *output);
         void printLimodsatFile();
 
+        static Formula zeroFormula(VariableManager *var);
+        template<class T> static Modsat binaryModsat(VariableManager *var, unsigned n, const T& logTerm);
+        static ModsatSet defineConstant(VariableManager *var, unsigned denum);
+        static Modsat multiplyConstant(VariableManager *var, unsigned num, unsigned denum);
+
     protected:
         LinearPieceData linearPieceData;
         unsigned dim;

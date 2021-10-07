@@ -27,12 +27,16 @@ class InputParser
         std::string currentLine;
         ExecutionMode mode;
 
+        LinearPieceData tlData;
+        bool tlTranslation = false;
+
         PiecewiseLinearFunctionData pwlData;
         BoundaryPrototypeCollection boundaryPrototypeData;
         bool pwlTranslation = false;
 
         void nextLine();
         LinearPieceData readLinearPiece(unsigned beginingPosition);
+        void buildTlInstance();
         void buildPwlInstance();
 };
 }

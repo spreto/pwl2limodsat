@@ -10,6 +10,8 @@ class VariableManager
 {
     public:
         VariableManager(unsigned dim);
+        VariableManager();
+        void setDimension(unsigned dim);
         Variable currentVariable();
         Variable newVariable();
         Variable zeroVariable();
@@ -25,6 +27,7 @@ class VariableManager
         unsigned counter;
         Variable zero = 0;
         bool zeroDefined = false;
+        bool counterInitialized = false;
         std::map<unsigned,Variable> constantsMap;
         std::map<unsigned,Variable> auxMultMap;
 };

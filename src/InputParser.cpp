@@ -71,9 +71,9 @@ LinearPieceData InputParser::readLinearPiece(unsigned beginingPosition)
     return lpData;
 }
 
-LinearPieceData InputParser::getTlInstanceData()
+void InputParser::buildTlInstance()
 {
-    return readLinearPiece(3);
+    tlData = readLinearPiece(3);
 }
 
 void InputParser::buildPwlInstance()
@@ -157,8 +157,22 @@ void InputParser::buildPwlInstance()
     pwlTranslation = true;
 }
 
+LinearPieceData InputParser::getTlInstanceData()
+{
+    if ( mode != TL )
+        throw std::domain_error("Not a truncated linear function.");
+
+    if ( !tlTranslation )
+        buildTlInstance();
+
+    return tlData;
+}
+
 PiecewiseLinearFunctionData InputParser::getPwlInstanceData()
 {
+    if ( mode != PWL )
+        throw std::domain_error("Not a general piecewise linear function.");
+
     if ( !pwlTranslation )
         buildPwlInstance();
 
@@ -167,6 +181,9 @@ PiecewiseLinearFunctionData InputParser::getPwlInstanceData()
 
 BoundaryPrototypeCollection InputParser::getPwlInstanceBoundProt()
 {
+    if ( mode != PWL )
+        throw std::domain_error("Not a general piecewise linear function.");
+
     if ( !pwlTranslation )
         buildPwlInstance();
 

@@ -12,7 +12,7 @@ namespace pwl2limodsat
 class InputParser
 {
     public:
-        InputParser(const char* iFN);
+        InputParser(const char* inputPwlFileName);
         virtual ~InputParser();
         ExecutionMode executionMode() { return mode; }
         LinearPieceData getTlInstanceData();
@@ -22,8 +22,8 @@ class InputParser
     protected:
 
     private:
-        std::string inputFileName;
-        std::ifstream inputFile;
+        std::string pwlFileName;
+        std::ifstream pwlFile;
         std::string currentLine;
         ExecutionMode mode;
 
@@ -33,7 +33,7 @@ class InputParser
 
         void nextLine();
         LinearPieceData readLinearPiece(unsigned beginingPosition);
-        void buildPWLInstance();
+        void buildPwlInstance();
 };
 }
 

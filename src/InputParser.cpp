@@ -4,13 +4,13 @@
 
 namespace pwl2limodsat
 {
-InputParser::InputParser(const char* iFN) :
-    inputFileName(iFN)
+InputParser::InputParser(const char* inputPwlFileName) :
+    pwlFileName(inputPwlFileName)
 {
-    inputFile.open(inputFileName);
+    pwlFile.open(pwlFileName);
 
-    if ( !inputFile.is_open() )
-        throw std::invalid_argument("Unable to open input file.");
+    if ( !pwlFile.is_open() )
+        throw std::invalid_argument("Unable to open pwl file.");
     else
     {
         nextLine();
@@ -25,15 +25,15 @@ InputParser::InputParser(const char* iFN) :
 
 InputParser::~InputParser()
 {
-    inputFile.close();
+    pwlFile.close();
 }
 
 void InputParser::nextLine()
 {
-    getline(inputFile,currentLine);
+    getline(pwlFile,currentLine);
 
-    while ( ( ( currentLine.compare(0,1,"c") == 0 ) || ( currentLine.empty() ) ) && !inputFile.eof() )
-        getline(inputFile, currentLine);
+    while ( ( ( currentLine.compare(0,1,"c") == 0 ) || ( currentLine.empty() ) ) && !pwlFile.eof() )
+        getline(pwlFile, currentLine);
 }
 
 LinearPieceData InputParser::readLinearPiece(unsigned beginingPosition)
@@ -76,7 +76,7 @@ LinearPieceData InputParser::getTlInstanceData()
     return readLinearPiece(3);
 }
 
-void InputParser::buildPWLInstance()
+void InputParser::buildPwlInstance()
 {
     BoundaryPrototype boundProt;
     LinearPieceData lpData;
@@ -88,7 +88,7 @@ void InputParser::buildPWLInstance()
 
     nextLine();
 
-    while ( !inputFile.eof() )
+    while ( !pwlFile.eof() )
     {
         if ( currentLine.compare(0,2,"b ") == 0 )
         {
@@ -160,7 +160,7 @@ void InputParser::buildPWLInstance()
 PiecewiseLinearFunctionData InputParser::getPwlInstanceData()
 {
     if ( !pwlTranslation )
-        buildPWLInstance();
+        buildPwlInstance();
 
     return pwlData;
 }
@@ -168,7 +168,7 @@ PiecewiseLinearFunctionData InputParser::getPwlInstanceData()
 BoundaryPrototypeCollection InputParser::getPwlInstanceBoundProt()
 {
     if ( !pwlTranslation )
-        buildPWLInstance();
+        buildPwlInstance();
 
     return boundaryPrototypeData;
 }

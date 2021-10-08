@@ -4,7 +4,10 @@
 
 namespace lukaFormula
 {
-Formula::Formula() {}
+Formula::Formula()
+{
+    emptyFormula = true;
+}
 
 Formula::Formula(const Clause& clau)
 {
@@ -107,21 +110,25 @@ void Formula::addBinaryOperation(const Formula& form, LogicalSymbol binSym)
 
     addUnits(form);
 
-    binOp->push_back(BinaryOperation(unitCounter + form.getUnitCounter() + 1, unitCounter,
-    unitCounter + form.getUnitCounter()));
+    binOp->push_back( BinaryOperation(unitCounter + form.getUnitCounter() + 1,
+                                      unitCounter,
+                                      unitCounter + form.getUnitCounter()) );
 
     unitCounter += form.getUnitCounter() + 1;
 }
 
 void Formula::addLukaDisjunction(const Formula& form)
 {
-    if ( ( unitCounter <= 1 ) && ( form.unitCounter <= 1 ) )
+    if ( emptyFormula )
     {
-        if ( ( unitCounter == 1 ) && ( form.unitCounter == 1 ) )
-            unitClauses.at(0).second.insert(unitClauses.at(0).second.end(),
-            form.unitClauses.at(0).second.begin(), form.unitClauses.at(0).second.end());
-        else if ( ( unitCounter == 0 ) && ( form.unitCounter == 1 ) )
-            *this = form;
+        *this = form;
+        emptyFormula = false;
+    }
+    else if ( ( unitCounter == 1 ) && ( form.unitCounter == 1 ) )
+    {
+        unitClauses.at(0).second.insert( unitClauses.at(0).second.end(),
+                                         form.unitClauses.at(0).second.begin(),
+                                         form.unitClauses.at(0).second.end() );
     }
     else
         addBinaryOperation(form,Lor);
@@ -129,22 +136,36 @@ void Formula::addLukaDisjunction(const Formula& form)
 
 void Formula::addEquivalence(const Formula& form)
 {
-    addBinaryOperation(form,Equiv);
+    if ( !emptyFormula && !form.isEmpty() )
+        addBinaryOperation(form,Equiv);
 }
 
 void Formula::addImplication(const Formula& form)
 {
-    addBinaryOperation(form,Impl);
+    if ( !emptyFormula && !form.isEmpty() )
+        addBinaryOperation(form,Impl);
 }
 
 void Formula::addMaximum(const Formula& form)
 {
-    addBinaryOperation(form,Max);
+    if ( emptyFormula )
+    {
+        *this = form;
+        emptyFormula = false;
+    }
+    else
+        addBinaryOperation(form,Max);
 }
 
 void Formula::addMinimum(const Formula& form)
 {
-    addBinaryOperation(form,Min);
+    if ( emptyFormula )
+    {
+        *this = form;
+        emptyFormula = false;
+    }
+    else
+        addBinaryOperation(form,Min);
 }
 
 void Formula::print(std::ofstream *output)

@@ -30,9 +30,10 @@ class Formula
         Formula(const Clause& clau);
         Formula(Literal lit);
         Formula(pwl2limodsat::Variable var);
-
         Formula(const Formula& form, LogicalSymbol unSym);
         Formula(const Formula& form1, const Formula& form2, LogicalSymbol binSym);
+
+        bool isEmpty() const { return emptyFormula; }
 
         void negateFormula();
         void addLukaDisjunction(const Formula& form);
@@ -53,6 +54,7 @@ class Formula
         void print(std::ofstream *output);
 
     private:
+        bool emptyFormula = false;
         unsigned unitCounter = 0;
         std::vector<UnitClause> unitClauses;
         std::vector<Negation> negations;

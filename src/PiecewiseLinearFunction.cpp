@@ -8,12 +8,13 @@ namespace pwl2limodsat
 PiecewiseLinearFunction::PiecewiseLinearFunction(const PiecewiseLinearFunctionData& pwlData,
                                                  const BoundaryPrototypeCollection& boundProtData,
                                                  std::string inputFileName,
+                                                 VariableManager *varMan,
                                                  bool multithreading) :
     boundaryPrototypeData(boundProtData),
-    var(VariableManager(pwlData.at(0).lpData.size() - 1))
+    var(varMan)
 {
     for ( size_t i = 0; i < pwlData.size(); i++ )
-        linearPieceCollection.push_back(RegionalLinearPiece(pwlData.at(i), &boundaryPrototypeData, &var));
+        linearPieceCollection.push_back(RegionalLinearPiece(pwlData.at(i), &boundaryPrototypeData, varMan));
 
     if ( inputFileName.substr(inputFileName.size()-4,4) == ".pwl" )
         outputFileName = inputFileName.substr(0,inputFileName.size()-4);
@@ -27,8 +28,33 @@ PiecewiseLinearFunction::PiecewiseLinearFunction(const PiecewiseLinearFunctionDa
 
 PiecewiseLinearFunction::PiecewiseLinearFunction(const PiecewiseLinearFunctionData& pwlData,
                                                  const BoundaryPrototypeCollection& boundProtData,
+                                                 std::string inputFileName,
+                                                 bool multithreading) :
+    PiecewiseLinearFunction(pwlData,
+                            boundProtData,
+                            inputFileName,
+                            new VariableManager(pwlData.at(0).lpData.size() - 1),
+                            multithreading)
+{
+    ownVariableManager = true;
+}
+
+PiecewiseLinearFunction::PiecewiseLinearFunction(const PiecewiseLinearFunctionData& pwlData,
+                                                 const BoundaryPrototypeCollection& boundProtData,
+                                                 std::string inputFileName,
+                                                 VariableManager *varMan) :
+    PiecewiseLinearFunction(pwlData, boundProtData, inputFileName, varMan, false) {}
+
+PiecewiseLinearFunction::PiecewiseLinearFunction(const PiecewiseLinearFunctionData& pwlData,
+                                                 const BoundaryPrototypeCollection& boundProtData,
                                                  std::string inputFileName) :
     PiecewiseLinearFunction(pwlData, boundProtData, inputFileName, false) {}
+
+PiecewiseLinearFunction::~PiecewiseLinearFunction()
+{
+    if ( ownVariableManager )
+        delete var;
+}
 
 bool PiecewiseLinearFunction::hasLatticeProperty()
 {
@@ -120,6 +146,30 @@ void PiecewiseLinearFunction::representModsat()
         representLatticeFormula(1);
 
     modsatTranslation = true;
+}
+
+void PiecewiseLinearFunction::equivalentTo(Variable variable)
+{
+    if ( !modsatTranslation )
+        representModsat();
+
+    latticeFormula.addEquivalence( lukaFormula::Formula(variable) );
+}
+
+std::vector<RegionalLinearPiece> PiecewiseLinearFunction::getLinearPieceCollection()
+{
+    if ( !modsatTranslation )
+        representModsat();
+
+    return linearPieceCollection;
+}
+
+Formula PiecewiseLinearFunction::getLatticeFormula()
+{
+    if ( !modsatTranslation )
+        representModsat();
+
+    return latticeFormula;
 }
 
 void PiecewiseLinearFunction::printLimodsatFile()

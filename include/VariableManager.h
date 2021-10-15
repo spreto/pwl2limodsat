@@ -10,26 +10,26 @@ class VariableManager
 {
     public:
         VariableManager(unsigned dim);
-        VariableManager();
+        VariableManager() {};
         void setDimension(unsigned dim);
         Variable currentVariable();
         Variable newVariable();
         Variable zeroVariable();
-        bool isThereConstant(unsigned denum);
-        Variable constant(unsigned denum);
-        Variable newConstant(unsigned denum);
-        bool isThereAuxMultVariable(unsigned denum);
-        Variable auxMultVariable(unsigned denum);
+        bool isThereConstant(LPCoefNonNegative denum);
+        Variable constant(LPCoefNonNegative denum);
+        Variable newConstant(LPCoefNonNegative denum);
+        bool isThereAuxMultVariable(LPCoefNonNegative denum);
+        Variable auxMultVariable(LPCoefNonNegative denum);
 
     protected:
 
     private:
-        unsigned counter;
+        Variable counter;
         Variable zero = 0;
         bool zeroDefined = false;
         bool counterInitialized = false;
-        std::map<unsigned,Variable> constantsMap;
-        std::map<unsigned,Variable> auxMultMap;
+        std::map<LPCoefNonNegative,Variable> constantsMap;
+        std::map<LPCoefNonNegative,Variable> auxMultMap;
 };
 }
 

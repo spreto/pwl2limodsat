@@ -11,12 +11,25 @@ class PiecewiseLinearFunction
         PiecewiseLinearFunction(const PiecewiseLinearFunctionData& pwlData,
                                 const BoundaryPrototypeCollection& boundProtData,
                                 std::string inputFileName,
+                                VariableManager *varMan,
                                 bool multithreading);
         PiecewiseLinearFunction(const PiecewiseLinearFunctionData& pwlData,
                                 const BoundaryPrototypeCollection& boundProtData,
+                                std::string inputFileName,
+                                bool multithreading);
+        PiecewiseLinearFunction(const PiecewiseLinearFunctionData& pwlData,
+                                const BoundaryPrototypeCollection& boundProtData,
+                                std::string inputFileName,
+                                VariableManager *varMan);
+        PiecewiseLinearFunction(const PiecewiseLinearFunctionData& pwlData,
+                                const BoundaryPrototypeCollection& boundProtData,
                                 std::string inputFileName);
+        ~PiecewiseLinearFunction();
         bool hasLatticeProperty();
         void representModsat();
+        void equivalentTo(Variable variable);
+        std::vector<RegionalLinearPiece> getLinearPieceCollection();
+        Formula getLatticeFormula();
         void printLimodsatFile();
 
     protected:
@@ -30,7 +43,8 @@ class PiecewiseLinearFunction
         BoundaryPrototypeCollection boundaryPrototypeData;
         Formula latticeFormula;
 
-        VariableManager var;
+        VariableManager *var;
+        bool ownVariableManager = false;
         bool modsatTranslation = false;
 
         void setProcessingMode(ProcessingMode mode) { processingMode = mode; }

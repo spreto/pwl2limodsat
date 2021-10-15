@@ -21,6 +21,7 @@ class LinearPiece
         void representModsat();
         Modsat getRepresentationModsat();
         void printModsatSet(std::ofstream *output);
+        void printModsatSetAs(std::ofstream *output, std::string intro);
         void printLimodsatFile();
 
         static Formula zeroFormula(VariableManager *var);

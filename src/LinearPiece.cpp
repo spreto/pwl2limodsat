@@ -298,6 +298,18 @@ void LinearPiece::printModsatSet(std::ofstream *output)
     }
 }
 
+void LinearPiece::printModsatSetAs(std::ofstream *output, std::string intro)
+{
+    if ( !modsatTranslation )
+        representModsat();
+
+    for ( size_t i = 0; i < representationModsat.Phi.size(); i++ )
+    {
+        *output << intro << std::endl;
+        representationModsat.Phi.at(i).print(output);
+    }
+}
+
 void LinearPiece::printLimodsatFile()
 {
     if ( !modsatTranslation )

@@ -168,6 +168,55 @@ void Formula::addMinimum(const Formula& form)
         addBinaryOperation(form,Min);
 }
 
+pwl2limodsat::Variable Formula::shiftVariables(std::vector<pwl2limodsat::Variable> newInputs,
+                                               pwl2limodsat::Variable byVar)
+{
+    pwl2limodsat::Variable maximum = 0;
+
+    for ( size_t i = 0; i < unitClauses.size(); i++ )
+    {
+        for ( size_t j = 0; j < unitClauses.at(i).second.size(); j++ )
+        {
+            pwl2limodsat::Variable newVariable;
+            bool negVar = false;
+            bool inputVar = false;
+
+            if ( unitClauses.at(i).second.at(j) > 0 )
+            {
+                if ( (size_t) unitClauses.at(i).second.at(j) <= newInputs.size() )
+                {
+                    newVariable = newInputs.at( unitClauses.at(i).second.at(j) - 1 );
+                    inputVar = true;
+                }
+                else
+                    newVariable = (pwl2limodsat::Variable) unitClauses.at(i).second.at(j) + byVar;
+            }
+            else
+            {
+                if ( (size_t) -1*unitClauses.at(i).second.at(j) <= newInputs.size() )
+                {
+                    newVariable = newInputs.at( unitClauses.at(i).second.at(j) - 1 );
+                    inputVar = true;
+                }
+                else
+                    newVariable = (pwl2limodsat::Variable) std::abs(unitClauses.at(i).second.at(j)) + byVar;
+
+                negVar = true;
+            }
+
+            if ( newVariable > maximum && !inputVar )
+                maximum = newVariable;
+
+            unitClauses.at(i).second.at(j) = (Literal) newVariable;
+
+            if ( negVar )
+                unitClauses.at(i).second.at(j) *= -1;
+        }
+    }
+
+    return maximum;
+}
+
 void Formula::print(std::ofstream *output)
 {
     unsigned unitClausesCounter = 0;

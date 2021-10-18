@@ -42,6 +42,9 @@ class Formula
         void addMaximum(const Formula& form);
         void addMinimum(const Formula& form);
 
+        pwl2limodsat::Variable shiftVariables(std::vector<pwl2limodsat::Variable> newInputs,
+                                              pwl2limodsat::Variable byVar);
+
         unsigned getUnitCounter() const { return unitCounter; }
         std::vector<UnitClause> getUnitClauses() const { return unitClauses; }
         std::vector<Negation> getNegations() const { return negations; }

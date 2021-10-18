@@ -286,18 +286,6 @@ Modsat LinearPiece::getRepresentationModsat()
     return representationModsat;
 }
 
-void LinearPiece::printModsatSet(std::ofstream *output)
-{
-    if ( !modsatTranslation )
-        representModsat();
-
-    for ( size_t i = 0; i < representationModsat.Phi.size(); i++ )
-    {
-        *output << "Formula " << i+1 << ":" << std::endl;
-        representationModsat.Phi.at(i).print(output);
-    }
-}
-
 void LinearPiece::printModsatSetAs(std::ofstream *output, std::string intro)
 {
     if ( !modsatTranslation )
@@ -306,6 +294,18 @@ void LinearPiece::printModsatSetAs(std::ofstream *output, std::string intro)
     for ( size_t i = 0; i < representationModsat.Phi.size(); i++ )
     {
         *output << intro << std::endl;
+        representationModsat.Phi.at(i).print(output);
+    }
+}
+
+void LinearPiece::printModsatSet(std::ofstream *output)
+{
+    if ( !modsatTranslation )
+        representModsat();
+
+    for ( size_t i = 0; i < representationModsat.Phi.size(); i++ )
+    {
+        *output << "Formula " << i+1 << ":" << std::endl;
         representationModsat.Phi.at(i).print(output);
     }
 }

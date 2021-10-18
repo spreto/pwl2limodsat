@@ -10,8 +10,9 @@ class VariableManager
 {
     public:
         VariableManager(unsigned dim);
-        VariableManager() {};
+        VariableManager();
         void setDimension(unsigned dim);
+        void jumpToVariable(Variable toVar);
         Variable currentVariable();
         Variable newVariable();
         Variable zeroVariable();
@@ -30,6 +31,8 @@ class VariableManager
         bool counterInitialized = false;
         std::map<LPCoefNonNegative,Variable> constantsMap;
         std::map<LPCoefNonNegative,Variable> auxMultMap;
+
+        void verifyInitialization();
 };
 }
 

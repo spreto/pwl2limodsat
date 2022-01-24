@@ -11,17 +11,17 @@ namespace lukaFormula
 enum LogicalSymbol { Neg, Lor, Equiv, Impl, Max, Min };
 
 typedef int Literal;
-typedef unsigned UnitClauseIndex;
+typedef unsigned UnitIndex;
 
 typedef std::vector<Literal> Clause;
-typedef std::pair<UnitClauseIndex,Clause> UnitClause;
-typedef std::pair<UnitClauseIndex,UnitClauseIndex> Negation;
-typedef std::tuple<UnitClauseIndex,UnitClauseIndex,UnitClauseIndex> BinaryOperation;
-typedef std::tuple<UnitClauseIndex,UnitClauseIndex,UnitClauseIndex> LDisjunction;
-typedef std::tuple<UnitClauseIndex,UnitClauseIndex,UnitClauseIndex> Equivalence;
-typedef std::tuple<UnitClauseIndex,UnitClauseIndex,UnitClauseIndex> Implication;
-typedef std::tuple<UnitClauseIndex,UnitClauseIndex,UnitClauseIndex> Maximum;
-typedef std::tuple<UnitClauseIndex,UnitClauseIndex,UnitClauseIndex> Minimum;
+typedef std::pair<UnitIndex,Clause> UnitClause;
+typedef std::pair<UnitIndex,UnitIndex> Negation;
+typedef std::tuple<UnitIndex,UnitIndex,UnitIndex> BinaryOperation;
+typedef std::tuple<UnitIndex,UnitIndex,UnitIndex> LDisjunction;
+typedef std::tuple<UnitIndex,UnitIndex,UnitIndex> Equivalence;
+typedef std::tuple<UnitIndex,UnitIndex,UnitIndex> Implication;
+typedef std::tuple<UnitIndex,UnitIndex,UnitIndex> Maximum;
+typedef std::tuple<UnitIndex,UnitIndex,UnitIndex> Minimum;
 
 class Formula
 {

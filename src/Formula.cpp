@@ -1,5 +1,4 @@
 #include <stdexcept>
-
 #include "Formula.h"
 
 namespace lukaFormula
@@ -36,6 +35,8 @@ Formula::Formula(const Formula& form1, const Formula& form2, LogicalSymbol binSy
 {
     if ( binSym == Lor )
         this->addLukaDisjunction(form2);
+    else if ( binSym == Land )
+        this->addLukaConjunction(form2);
     else if ( binSym == Equiv )
         this->addEquivalence(form2);
     else if ( binSym == Impl )
@@ -46,6 +47,33 @@ Formula::Formula(const Formula& form1, const Formula& form2, LogicalSymbol binSy
         this->addMinimum(form2);
     else
         throw std::invalid_argument("Not a valid logic operation.");
+}
+
+Formula::Formula(std::vector<UnitClause> unitClausesInput,
+                 std::vector<Negation> negationsInput,
+                 std::vector<LDisjunction> lDisjunctionsInput,
+                 std::vector<LConjunction> lConjunctionsInput,
+                 std::vector<Equivalence> equivalencesInput,
+                 std::vector<Implication> implicationsInput,
+                 std::vector<Maximum> maximumsInput,
+                 std::vector<Minimum> minimumsInput) :
+    unitClauses(unitClausesInput),
+    negations(negationsInput),
+    lDisjunctions(lDisjunctionsInput),
+    lConjunctions(lConjunctionsInput),
+    equivalences(equivalencesInput),
+    implications(implicationsInput),
+    maximums(maximumsInput),
+    minimums(minimumsInput)
+{
+    unitCounter = unitClauses.size()
+                + negations.size()
+                + lDisjunctions.size()
+                + lConjunctions.size()
+                + equivalences.size()
+                + implications.size()
+                + maximums.size()
+                + minimums.size();
 }
 
 void Formula::negateFormula()
@@ -69,6 +97,11 @@ void Formula::addUnits(const Formula& form)
         lDisjunctions.push_back( LDisjunction(std::get<0>(form.getLDisjunctions().at(i)) + unitCounter,
                                               std::get<1>(form.getLDisjunctions().at(i)) + unitCounter,
                                               std::get<2>(form.getLDisjunctions()[i]) + unitCounter) );
+
+    for ( size_t i = 0; i < form.getLConjunctions().size(); i++ )
+        lConjunctions.push_back( LConjunction(std::get<0>(form.getLConjunctions().at(i)) + unitCounter,
+                                              std::get<1>(form.getLConjunctions().at(i)) + unitCounter,
+                                              std::get<2>(form.getLConjunctions()[i]) + unitCounter) );
 
     for ( size_t i = 0; i < form.getEquivalences().size(); i++ )
         equivalences.push_back( Equivalence(std::get<0>(form.getEquivalences().at(i)) + unitCounter,
@@ -97,6 +130,8 @@ void Formula::addBinaryOperation(const Formula& form, LogicalSymbol binSym)
 
     if ( binSym == Lor )
         binOp = &lDisjunctions;
+    else if ( binSym == Land )
+        binOp = &lConjunctions;
     else if ( binSym == Equiv )
         binOp = &equivalences;
     else if ( binSym == Impl )
@@ -132,6 +167,12 @@ void Formula::addLukaDisjunction(const Formula& form)
     }
     else
         addBinaryOperation(form,Lor);
+}
+
+void Formula::addLukaConjunction(const Formula& form)
+{
+    if ( !emptyFormula && !form.isEmpty() )
+        addBinaryOperation(form,Land);
 }
 
 void Formula::addEquivalence(const Formula& form)
@@ -221,6 +262,8 @@ void Formula::print(std::ofstream *output)
 {
     unsigned unitClausesCounter = 0;
     unsigned negationsCounter = 0;
+    unsigned disjunctionsCounter = 0;
+    unsigned conjunctionsCounter = 0;
     unsigned equivalencesCounter = 0;
     unsigned implicationsCounter = 0;
     unsigned maximumsCounter = 0;
@@ -243,6 +286,26 @@ void Formula::print(std::ofstream *output)
             *output << negations.at(negationsCounter).second << std::endl;
 
             negationsCounter++;
+        }
+        else if ( (disjunctionsCounter < lDisjunctions.size()) && (std::get<0>(lDisjunctions.at(disjunctionsCounter)) == i) )
+        {
+            *output << "Unit " << i << " :: Disjunction :: ";
+            *output << std::get<1>(lDisjunctions.at(disjunctionsCounter))
+                    << " "
+                    << std::get<2>(lDisjunctions.at(disjunctionsCounter))
+                    << std::endl;
+
+            disjunctionsCounter++;
+        }
+        else if ( (conjunctionsCounter < lConjunctions.size()) && (std::get<0>(lConjunctions.at(conjunctionsCounter)) == i) )
+        {
+            *output << "Unit " << i << " :: Conjunction :: ";
+            *output << std::get<1>(lConjunctions.at(conjunctionsCounter))
+                    << " "
+                    << std::get<2>(lConjunctions.at(conjunctionsCounter))
+                    << std::endl;
+
+            conjunctionsCounter++;
         }
         else if ( (equivalencesCounter < equivalences.size()) && (std::get<0>(equivalences.at(equivalencesCounter)) == i) )
         {

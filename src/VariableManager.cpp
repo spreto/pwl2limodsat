@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "VariableManager.h"
 
 namespace pwl2limodsat

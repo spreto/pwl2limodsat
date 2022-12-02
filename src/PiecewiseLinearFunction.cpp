@@ -179,7 +179,8 @@ void PiecewiseLinearFunction::printLimodsatFile()
 
     std::ofstream outputFile(outputFileName);
 
-    outputFile << "-= Formula phi =-" << std::endl << std::endl;
+    //outputFile << "-= Formula phi =-" << std::endl << std::endl;
+    outputFile << "-= Formula phi =- MAXVAR " << var->currentVariable() << std::endl << std::endl;
     latticeFormula.print(&outputFile);
 
     outputFile << std::endl << "-= MODSAT Set Phi =-" << std::endl;

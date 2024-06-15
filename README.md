@@ -31,3 +31,9 @@ Typing the following command at the root of the distribution directory, **pwl2li
 > $ ./bin/Release/pwl2limodsat file.pwl
 
 A .pwl file may have two configurations: truncated linear functions and general rational McNaughton functions in regional format. Commented lines begin with *c*. Examples are found in folder *tests/*.
+
+### Funding
+
+This work was supported by grant #2021/03117-2, São Paulo Research Foundation (FAPESP).
+
+This work was carried out at the Center for Artificial Intelligence (C4AI-USP), with support by the São Paulo Research Foundation (FAPESP), grant #2019/07665-4, and by the IBM Corporation.

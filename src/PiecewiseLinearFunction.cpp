@@ -80,6 +80,30 @@ bool PiecewiseLinearFunction::hasLatticeProperty()
     return hasLatticeProperty;
 }
 
+unsigned long long int PiecewiseLinearFunction::latticePropertyCounter()
+{
+    unsigned long long int counter = 0;
+
+    for ( size_t i = 0; i < linearPieceCollection.size(); i++ )
+        for ( size_t j = 0; j < linearPieceCollection.size(); j++ )
+            if ( i != j )
+            {
+                bool found = false;
+
+                for ( size_t k = 0; k < linearPieceCollection.size() && !found; k++ )
+                {
+                    if ( linearPieceCollection.at(i).comparedIsBelow(linearPieceCollection.at(k)) )
+                        if ( linearPieceCollection.at(j).comparedIsAbove(linearPieceCollection.at(k)) )
+                            found = true;
+                }
+
+                if ( !found )
+                    counter++;
+            }
+
+    return counter;
+}
+
 void PiecewiseLinearFunction::representPiecesModSat()
 {
     for ( size_t i = 0; i < linearPieceCollection.size(); i++ )

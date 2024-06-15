@@ -26,6 +26,7 @@ class PiecewiseLinearFunction
                                 std::string inputFileName);
         ~PiecewiseLinearFunction();
         bool hasLatticeProperty();
+        unsigned long long int latticePropertyCounter();
         void representModsat();
         void equivalentTo(Variable variable);
         std::vector<RegionalLinearPiece> getLinearPieceCollection();

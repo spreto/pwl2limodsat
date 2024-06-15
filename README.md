@@ -4,8 +4,10 @@
 
 ## Theoretical References
 
-Preto, S. and Finger, M. 2020. An efficient algorithm for representing piecewise linear functions into logic. *Electronic Notes
-in Theoretical Computer Science*, 351:167–186. Proceedings of LSFA 2020, the 15th International Workshop on Logical
+Preto, S. and Finger, M. 2022. Efficient representation of piecewise linear functions into Łukasiewicz logic modulo satisfiability. *Mathematical Structures in Computer Science*, 32(9):1119–1144.
+[doi.org/10.1017/S096012952200010X](https://doi.org/10.1017/S096012952200010X)
+
+Preto, S. and Finger, M. 2020. An efficient algorithm for representing piecewise linear functions into logic. *Electronic Notes in Theoretical Computer Science*, 351:167–186. Proceedings of LSFA 2020, the 15th International Workshop on Logical
 and Semantic Frameworks, with Applications (LSFA 2020).
 [doi.org/10.1016/j.entcs.2020.08.009](https://doi.org/10.1016/j.entcs.2020.08.009)
 

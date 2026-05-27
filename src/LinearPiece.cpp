@@ -317,7 +317,8 @@ void LinearPiece::printLimodsatFile()
 
     std::ofstream outputFile(outputFileName);
 
-    outputFile << "-= Formula phi =-" << std::endl << std::endl;
+//    outputFile << "-= Formula phi =-" << std::endl << std::endl;
+    outputFile << "-= Formula phi =- MAXVAR " << var->currentVariable() << std::endl << std::endl;
     representationModsat.phi.print(&outputFile);
 
     outputFile << std::endl << "-= MODSAT Set Phi =-" << std::endl << std::endl;
